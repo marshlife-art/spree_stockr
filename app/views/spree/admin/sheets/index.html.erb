@@ -1,0 +1,29 @@
+<% content_for :page_title do %>
+  Sheets
+<% end %>
+
+<% content_for :page_actions do %>
+  <%= button_link_to 'New Sheet', admin_new_sheet_path, { class: "btn-success", icon: 'add', id: 'admin_new_sheet' } %>
+<% end if can?(:create, Spree::Sheet) %>
+
+
+<table class="table">
+<thead>
+  <tr>
+    <td>Name</td>
+    <td>Created</td>
+    <td></td>
+    <td></td>
+  </tr>
+</thead>
+<% @sheets.each do |sheet| %>
+    <tr class="sheet">
+      <td><%= link_to sheet.name, admin_edit_sheet_path(sheet.id) %></td>
+      <td><%= sheet.created_at.to_formatted_s(:long) %></td>
+      <td><%= "#{sheet.rows} Rows" if sheet.rows %></td>
+      <td></td>
+    </tr>
+<% end %>
+</table>
+
+<%= paginate @sheets %>

@@ -1,0 +1,69 @@
+<style>
+#drop{
+	border:2px dashed #bbb;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	padding:25px;
+	text-align:center;
+	font:20pt bold,sans-serif;
+  color:#bbb
+}
+</style>
+
+<% content_for :page_title do %>
+  Upload New Sheet
+<% end %>
+
+<%= form_for Spree::Sheet.new, as: :spree_sheet, url: admin_create_new_sheet_path do |f| %>
+  <fieldset id="password-credentials">
+    <%= f.hidden_field :name %>
+
+    <div id="drop">Drop a spreadsheet file here</div>
+    <div class="form-group">
+      <%= f.file_field :file %>
+    </div>
+
+    <div class="form-group">
+      <%= f.number_field :header_row, class: 'form-control', tabindex: 1, placeholder: 'Header Row' %>
+    </div>
+
+    <div class="form-group">
+      <%= f.submit 'Upload Sheet', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: true, id: 'submit_new_sheet' %>
+    </div>
+  </fieldset>
+<% end %>
+
+<script>
+(function() {
+
+	var drop = document.getElementById('drop')
+  var file_input = document.getElementById('spree_sheet_file')
+  var sheet_name = document.getElementById('spree_sheet_name')
+  var submit_new_sheet = document.getElementById('submit_new_sheet')
+
+	if(!drop.addEventListener) return
+
+	function handleDrop(e) {
+		e.stopPropagation()
+    e.preventDefault()
+    file_input.files = e.dataTransfer.files
+    sheet_name.value = e.dataTransfer.files[0].name
+    submit_new_sheet.disabled = false
+	}
+	function handleDragover(e) {
+		e.stopPropagation()
+		e.preventDefault()
+		e.dataTransfer.dropEffect = 'copy'
+	}
+	drop.addEventListener('dragenter', handleDragover, false)
+	drop.addEventListener('dragover', handleDragover, false)
+	drop.addEventListener('drop', handleDrop, false)
+
+  file_input.addEventListener('change', function(e){
+    sheet_name.value = e.target.files[0].name
+    submit_new_sheet.disabled = false
+  }, false)
+
+})()
+</script>

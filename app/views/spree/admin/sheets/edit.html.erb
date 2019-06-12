@@ -1,0 +1,26 @@
+<style>
+.sheet dd {
+  margin-left: 1em;
+}
+</style>
+
+<% content_for :page_title do %>
+  Edit Sheet
+<% end %>
+
+<dl class="sheet">
+  <dt>Name:</dt>
+  <dd><%= @sheet.name %></dd>
+
+  <dt>Header Row</dt>
+  <dd><%= @sheet.header_row %></dd>
+
+  <dt>Processed?</dt>
+  <dd><%= @sheet.file ? 'No' : 'Yes' %></dd>
+
+  <% if @sheet.rows %>
+  <dt>Rows</dt>
+  <dd><%= @sheet.rows %></dd>
+  <% end %>
+</dl>
+
