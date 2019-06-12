@@ -2,6 +2,8 @@
 
 Spree extension for creating products from uploaded xlsx & csv files
 
+🗣 [roo](https://github.com/roo-rb/roo)
+
 ## Installation
 
 1. Add this extension to your Gemfile with this line:
