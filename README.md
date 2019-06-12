@@ -49,3 +49,5 @@ If you'd like to contribute, please take a look at the
 pull request.
 
 Copyright (c) 2019 MARSH, released under the New BSD License
+
+made with ♥ in NYC
