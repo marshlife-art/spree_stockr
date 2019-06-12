@@ -1,12 +1,12 @@
-# SpreeStockr
+# SpreeStock'r
 
-Introduction goes here.
+Spree extension for creating products from uploaded xlsx & csv files
 
 ## Installation
 
 1. Add this extension to your Gemfile with this line:
   ```ruby
-  gem 'spree_stockr', github: '[your-github-handle]/spree_stockr'
+  gem 'spree_stockr', github: 'marshlife-art/spree_stockr'
   ```
 
 2. Install the gem using Bundler:
@@ -46,4 +46,4 @@ If you'd like to contribute, please take a look at the
 [instructions](CONTRIBUTING.md) for installing dependencies and crafting a good
 pull request.
 
-Copyright (c) 2019 [name of extension creator], released under the New BSD License
+Copyright (c) 2019 MARSH, released under the New BSD License
