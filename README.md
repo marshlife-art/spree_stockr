@@ -41,13 +41,12 @@ Simply add this require statement to your spec_helper:
 require 'spree_stockr/factories'
 ```
 
-
 ## Contributing
 
 If you'd like to contribute, please take a look at the
 [instructions](CONTRIBUTING.md) for installing dependencies and crafting a good
 pull request.
 
-Copyright (c) 2019 MARSH, released under the New BSD License
+[guides.spreecommerce.org/developer/tutorials/extensions_tutorial](https://guides.spreecommerce.org/developer/tutorials/extensions_tutorial.html)
 
 made with ♥ in NYC
