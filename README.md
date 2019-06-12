@@ -1,5 +1,7 @@
 # SpreeStock'r
 
+:construction: NOTE: this gem in very much a work-in-progress
+
 Spree extension for creating products from uploaded xlsx & csv files
 
 🗣 [roo](https://github.com/roo-rb/roo)
