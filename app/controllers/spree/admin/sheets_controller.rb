@@ -15,6 +15,12 @@ module Spree
         @sheet = Spree::Sheet.find_by_id(params[:id])
       end
 
+      def update
+        @sheet = Spree::Sheet.find_by_id(params[:id])
+        @sheet.update_attributes(sheet_params)
+        redirect_to admin_edit_sheet_path(@sheet.id)
+      end
+
       def process_file
         @sheet = Spree::Sheet.find_by_id(params[:id])
         if(@sheet.active?)

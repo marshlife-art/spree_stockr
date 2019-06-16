@@ -9,22 +9,7 @@
 <% end %>
 
 <% content_for :page_actions do %>
-  <% status_class = case @sheet.status_before_type_cast
-    when Spree::Sheet.statuses[:active]
-      'label-primary'
-    when Spree::Sheet.statuses[:processing]
-      'label-info'
-    when Spree::Sheet.statuses[:failed_processing]
-      'label-warning'
-    when Spree::Sheet.statuses[:ready]
-      'label-success'
-    when Spree::Sheet.statuses[:done]
-      'label-default'
-    when Spree::Sheet.statuses[:failed]
-      'label-danger'
-    end
-  %>
-  <span class="label <%= status_class %>"><%= @sheet.status %></span>
+  <span class="label <%= @sheet.status_class %>"><%= @sheet.status %></span>
 
   <% if @sheet.processing? %>
     <div class="spinner-border" role="status">
@@ -39,14 +24,26 @@
 
 <div class="row">
   <div class="col-md-6">
-    <h3>&nbsp;</h3>
+    <h3>Sheet Info</h3>
+    <%= form_for @sheet, as: :spree_sheet, url: admin_update_sheet_path do |f| %>
+      <div class="form-group">
+        <%= f.label :header_row do %>
+          Header Row
+          <%= f.number_field :header_row, class: 'form-control', tabindex: 1, placeholder: 'Header Row' %>
+        <% end %>
+      </div>
+      <div class="form-group">
+        <%= f.submit 'Update Header Row', class: 'btn btn-success', tabindex: 2, disabled: false, id: 'update_sheet' %>
+      </div>
+    <% end %>
     <dl class="sheet">
-      <dt>Header Row</dt>
-      <dd><%= @sheet.header_row %></dd>
-
+      <dt>Created</dt>
+      <dd><%= t @sheet.created_at %></dd>
+      <dt>Updated</dt>
+      <dd><%= t @sheet.updated_at %></dd>
       <% if @sheet.rows %>
       <dt>Rows</dt>
-      <dd><%= @sheet.rows %></dd>
+      <dd><%= number_with_delimiter(@sheet.rows, :delimiter => ',') %></dd>
       <% end %>
 
       <% if @sheet.parsed_json_files.attached? %>
@@ -60,7 +57,21 @@
     
     <br/>
 
-    <h3>Global Map</h3>
+    <ul class="nav nav-pills">
+      <li><h4>Global Mapping</h4></li>
+      <li role="presentation" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="#">Save Global Mapping Preset</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#">Load Global Mapping Preset</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <br/>
 
     <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_global_map_path do |f| %>
       
@@ -76,7 +87,7 @@
       </div>
 
       <div class="form-group">
-        <%= f.submit 'Save Global Map', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
+        <%= f.submit 'Save Global Mapping', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
       </div>
     <% end %>
     
@@ -86,7 +97,23 @@
   </div>
   <div class="col-md-6">
     <% if @sheet.data and @sheet.data['headers'] and !@sheet.data['headers'].empty? %>
-      <h3>Header Map</h3>
+   
+      <ul class="nav nav-pills">
+        <li><h4>Header Mapping</h4></li>
+        <li role="presentation" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Save Header Mapping Preset</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Load Header Mapping Preset</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <br/>
+
       <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_header_map_path do |f| %>
         <% @sheet.data['headers'].each_with_index do |header, idx| %>
           <div class="form-group">
@@ -98,7 +125,7 @@
         <% end %>
 
         <div class="form-group">
-          <%= f.submit 'Save Header Map', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
+          <%= f.submit 'Save Header Mapping', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
         </div>
         
       <% end %>
