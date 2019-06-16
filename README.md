@@ -33,7 +33,15 @@ First bundle your dependencies, then run `rake`. `rake` will default to building
 
 ```shell
 bundle
-bundle exec rake
+bundle exec rake test_app
+```
+
+__note:__ need to re-run `rake test_app` after you add or change db/migrations.
+
+to run the tests do:
+
+```sh
+rspec
 ```
 
 When testing your applications integration with this extension you may use it's factories.

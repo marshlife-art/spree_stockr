@@ -15,9 +15,13 @@ gem 'spree_backend', github: 'spree/spree', branch: 'master'
 gem 'spree_auth_devise', github: 'spree/spree_auth_devise', branch: 'master'
 gem 'rails-controller-testing'
 
-gem 'rubocop', require: false
-gem 'rubocop-rspec', require: false
-
 gem 'roo', '~> 2.8'
+
+group :development, :test do
+  gem 'rubocop', require: false
+  gem 'rubocop-rspec', require: false
+  gem 'rspec'
+  gem 'rspec-rails'
+end
 
 gemspec
