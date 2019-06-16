@@ -6,7 +6,6 @@
 .localeapp/locales
 .project
 .vscode
-coverage
 default
 Gemfile.lock
 tmp
