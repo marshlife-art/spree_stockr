@@ -14,22 +14,33 @@ class ImportProductsSheetJob < ApplicationJob
     # xlsx_sheet = xlsx.sheet xlsx.sheets[0]
 
     sheet.data["headers"] = xlsx.row(sheet.header_row)
-    p "sheet.data[headers]: #{sheet.data["headers"]}"
-
-    json_data = {rows: []}
-
-    # iterate thru rowz
-    xlsx.each_row_streaming(offset: sheet.header_row, max_rows: 10) do |row|
-      # Array of Excelx::Cell objects
-      json_data[:rows].push row.collect{|c| c.value.to_s.strip}
-    end
-
-    sheet.parsed_json_files.attach(io: StringIO.new(json_data.to_json), filename: "file.json", content_type: "application/json")
-
-    p "sheet.parsed_json_files.first.download: #{sheet.parsed_json_files.first.download}"
+    # p "sheet.data[headers]: #{sheet.data["headers"]}"
 
     sheet.rows = xlsx.last_row
+    processed_rows = 0
 
+    while(processed_rows < sheet.rows) do
+      p "while processed_rows(#{processed_rows}) < sheet.rows(#{sheet.rows})"
+      json_data = {rows: []}
+
+      # iterate thru rowz
+      offset = processed_rows == 0 ? sheet.header_row : processed_rows
+
+      xlsx.each_row_streaming(offset: offset, max_rows: 10000) do |row|
+        # Array of Excelx::Cell objects
+        json_data[:rows].push row.collect{|c| c.value.to_s.strip}
+        processed_rows += 1
+      end
+
+      sheet.parsed_json_files.attach(io: StringIO.new(json_data.to_json), filename: "rows.json", content_type: "application/json")
+
+      # p "sheet.parsed_json_files.last.download: #{sheet.parsed_json_files.last.download}"
+
+
+    end
+
+    sheet.status = :ready
     sheet.save
+
   end
 end

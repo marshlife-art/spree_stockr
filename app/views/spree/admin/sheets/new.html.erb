@@ -25,7 +25,11 @@
     </div>
 
     <div class="form-group">
-      <%= f.number_field :header_row, class: 'form-control', tabindex: 1, placeholder: 'Header Row' %>
+      <%= f.label :header_row do %>
+        Header Row
+        <%= f.number_field :header_row, class: 'form-control', tabindex: 1, placeholder: 'Header Row' %>
+      <% end %>
+      
     </div>
 
     <div class="form-group">

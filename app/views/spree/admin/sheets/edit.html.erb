@@ -5,22 +5,120 @@
 </style>
 
 <% content_for :page_title do %>
-  Edit Sheet
+  <%= @sheet.name %>
 <% end %>
 
-<dl class="sheet">
-  <dt>Name:</dt>
-  <dd><%= @sheet.name %></dd>
+<% content_for :page_actions do %>
+  <% status_class = case @sheet.status_before_type_cast
+    when Spree::Sheet.statuses[:active]
+      'label-primary'
+    when Spree::Sheet.statuses[:processing]
+      'label-info'
+    when Spree::Sheet.statuses[:failed_processing]
+      'label-warning'
+    when Spree::Sheet.statuses[:ready]
+      'label-success'
+    when Spree::Sheet.statuses[:done]
+      'label-default'
+    when Spree::Sheet.statuses[:failed]
+      'label-danger'
+    end
+  %>
+  <span class="label <%= status_class %>"><%= @sheet.status %></span>
 
-  <dt>Header Row</dt>
-  <dd><%= @sheet.header_row %></dd>
-
-  <dt>Processed?</dt>
-  <dd><%= @sheet.file ? 'No' : 'Yes' %></dd>
-
-  <% if @sheet.rows %>
-  <dt>Rows</dt>
-  <dd><%= @sheet.rows %></dd>
+  <% if @sheet.processing? %>
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  <% elsif @sheet.active? or @sheet.failed_processing? %>
+    <%= button_link_to 'Process File', admin_process_sheet_path(@sheet.id), { class: "btn-success", icon: 'file', id: 'admin_new_sheet' } %>
   <% end %>
-</dl>
+<% end if can?(:create, Spree::Sheet) %>
 
+
+
+<div class="row">
+  <div class="col-md-6">
+    <h3>&nbsp;</h3>
+    <dl class="sheet">
+      <dt>Header Row</dt>
+      <dd><%= @sheet.header_row %></dd>
+
+      <% if @sheet.rows %>
+      <dt>Rows</dt>
+      <dd><%= @sheet.rows %></dd>
+      <% end %>
+
+      <% if @sheet.parsed_json_files.attached? %>
+      <dt>JSON</dt>
+        <% @sheet.parsed_json_files.each_with_index do |file, idx| %>
+          <dd><%= link_to "#{file.name}(#{idx})", 
+    Rails.application.routes.url_helpers.rails_blob_path(file) %>  </dd>
+        <% end %>
+      <% end %>
+    </dl>
+    
+    <br/>
+
+    <h3>Global Map</h3>
+
+    <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_global_map_path do |f| %>
+      
+      
+      <% if @sheet.data and @sheet.data['global_map'] and !@sheet.data['global_map'].empty? %>
+        <% @sheet.data['global_map'].each do |item| %>
+          <%= item %>
+        <% end %>
+      <% end %>
+
+      <div class="form-group">
+        <button type="button" class="btn btn-sm btn-default" id="add_global_property">Add Global Property</button>
+      </div>
+
+      <div class="form-group">
+        <%= f.submit 'Save Global Map', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
+      </div>
+    <% end %>
+    
+
+
+    
+  </div>
+  <div class="col-md-6">
+    <% if @sheet.data and @sheet.data['headers'] and !@sheet.data['headers'].empty? %>
+      <h3>Header Map</h3>
+      <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_header_map_path do |f| %>
+        <% @sheet.data['headers'].each_with_index do |header, idx| %>
+          <div class="form-group">
+            <%= label_tag idx do %>
+              <%= idx %>
+              <%= text_field_tag idx, nil, class: 'form-control', tabindex: 1, placeholder: idx %>
+            <% end %>
+          </div>
+        <% end %>
+
+        <div class="form-group">
+          <%= f.submit 'Save Header Map', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
+        </div>
+        
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<script>
+(function() {
+  // var sheet_data = <%= @sheet.data.to_json.html_safe %>
+  // console.log(sheet_data)
+  // if(sheet_data && sheet_data.headers && sheet_data.headers.length){
+  //   var submit_new_sheet = document.getElementById('submit_new_sheet')
+  // }
+
+  var add_global_property = document.getElementById('add_global_property')
+  if(add_global_property){
+    add_global_property.addEventListener('click', function(e){
+      console.log('add_global_property CLICK!')
+    })
+  }
+})()
+</script>

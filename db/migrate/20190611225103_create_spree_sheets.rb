@@ -1,9 +1,10 @@
 class CreateSpreeSheets < ActiveRecord::Migration[5.2]
   def change
     create_table :spree_sheets do |t|
+      t.integer :status
       t.string :name
       t.integer :rows
-      t.integer :header_row, default: 1
+      t.integer :header_row
       if ActiveRecord::Base.connection.adapter_name == 'postgresql'
         t.jsonb :data, null: false, default: {}
       else

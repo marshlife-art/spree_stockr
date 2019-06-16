@@ -21,7 +21,14 @@
       <td><%= link_to sheet.name, admin_edit_sheet_path(sheet.id) %></td>
       <td><%= sheet.created_at.to_formatted_s(:long) %></td>
       <td><%= "#{sheet.rows} Rows" if sheet.rows %></td>
-      <td></td>
+      <td>
+      <% if sheet.processing? %>
+      <div class="spinner-border spinner-border-sm" role="status">
+        <span class="sr-only">Processing...</span>
+      </div>
+      <% end %>
+      
+      </td>
     </tr>
 <% end %>
 </table>
