@@ -17,7 +17,7 @@
   </tr>
 </thead>
 <% @sheets.each do |sheet| %>
-    <tr class="sheet">
+    <tr class="sheet" id="sheet_<%= sheet.id %>">
       <td><%= link_to sheet.name, admin_edit_sheet_path(sheet.id) %></td>
       <td><%= sheet.created_at.to_formatted_s(:long) %></td>
       <td><%= "#{sheet.rows} Rows" if sheet.rows %></td>
@@ -26,6 +26,10 @@
       <div class="spinner-border spinner-border-sm" role="status">
         <span class="sr-only">Processing...</span>
       </div>
+      <% else %>
+        <%= link_to admin_delete_sheet_path(sheet.id), remote: true, method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        <% end %>
       <% end %>
       
       </td>

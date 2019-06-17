@@ -6,9 +6,9 @@ module Spree
       end
 
       def create
-        sheet = Spree::Sheet.create!(sheet_params)
-        sheet.active!
-        redirect_to admin_sheets_url
+        @sheet = Spree::Sheet.create!(sheet_params)
+        @sheet.active!
+        redirect_to admin_edit_sheet_path(@sheet.id)
       end
 
       def edit
@@ -19,6 +19,12 @@ module Spree
         @sheet = Spree::Sheet.find_by_id(params[:id])
         @sheet.update_attributes(sheet_params)
         redirect_to admin_edit_sheet_path(@sheet.id)
+      end
+
+      def delete
+        @sheet_id = params[:id]
+        sheet = Spree::Sheet.find_by_id(@sheet_id)
+        sheet.destroy
       end
 
       def process_file
