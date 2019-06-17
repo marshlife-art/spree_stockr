@@ -46,14 +46,16 @@ module Spree
         @sheet = Spree::Sheet.find_by_id(params[:id])
         @sheet.data['header_map'] = params[:header_map]
         @sheet.save
-        redirect_to admin_edit_sheet_path(@sheet.id)
+        # redirect_to admin_edit_sheet_path(@sheet.id)
       end
 
       def global_map
         @sheet = Spree::Sheet.find_by_id(params[:id])
-        @sheet.data['global_map'] = params[:global_map]
-        @sheet.save
-        redirect_to admin_edit_sheet_path(@sheet.id)
+        unless params[:global_map].blank?
+          @sheet.data['global_map'] = params[:global_map]
+          @sheet.save
+        end
+        # redirect_to admin_edit_sheet_path(@sheet.id)
       end
      
       private

@@ -1,0 +1,13 @@
+<div class="row">
+  <div class="col-md-5">
+    <label for="sheet_global_map_key">Key</label>
+    <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.global_map_props), class: 'form-control' %>
+  </div>
+  <div class="col-md-1 global_map_arrow">
+    <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+  </div>
+  <div class="col-md-6">
+    <label for="sheet_global_map_value">Value</label>
+    <%= select_tag :sheet_global_map_value, options_for_select(['Select Destination...']), class: 'form-control' %>
+  </div>
+</div>

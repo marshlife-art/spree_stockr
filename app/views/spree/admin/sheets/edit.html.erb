@@ -2,6 +2,12 @@
 .sheet dd {
   margin-left: 1em;
 }
+.global_map_arrow{
+  margin-top: 30px;
+}
+.submit-group {
+  margin-top: 2em;
+}
 </style>
 
 <% content_for :page_title do %>
@@ -76,17 +82,24 @@
     <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_global_map_path do |f| %>
       
       
-      <% if @sheet.data and @sheet.data['global_map'] and !@sheet.data['global_map'].empty? %>
-        <% @sheet.data['global_map'].each do |item| %>
-          <%= item %>
+      <div id="global_map_props">
+        <% if @sheet.data and @sheet.data['global_map'] and !@sheet.data['global_map'].empty? %>
+          <% @sheet.data['global_map'].each do |item| %>
+            <%= item %>
+          <% end %>
         <% end %>
-      <% end %>
 
-      <div class="form-group">
-        <button type="button" class="btn btn-sm btn-default" id="add_global_property">Add Global Property</button>
+        <%= render 'global_map' %>
+
       </div>
 
       <div class="form-group">
+        <%= link_to admin_sheet_global_map_path(@sheet.id), remote: true, method: :get, class: 'btn btn-sm btn-default' do %>
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Global Property
+        <% end %>
+      </div>
+
+      <div class="form-group submit-group">
         <%= f.submit 'Save Global Mapping', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
       </div>
     <% end %>
