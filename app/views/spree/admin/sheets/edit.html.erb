@@ -15,8 +15,6 @@
 <% end %>
 
 <% content_for :page_actions do %>
-  <span class="label <%= @sheet.status_class %>"><%= @sheet.status %></span>
-
   <% if @sheet.processing? %>
     <div class="spinner-border" role="status">
       <span class="sr-only">Loading...</span>
@@ -25,7 +23,6 @@
     <%= button_link_to 'Process File', admin_process_sheet_path(@sheet.id), { class: "btn-success", icon: 'file', id: 'admin_new_sheet' } %>
   <% end %>
 <% end if can?(:create, Spree::Sheet) %>
-
 
 
 <div class="row">
@@ -43,6 +40,8 @@
       </div>
     <% end %>
     <dl class="sheet">
+      <dt>Status</dt>
+      <dd><span class="label <%= @sheet.status_class %>"><%= @sheet.status %></span></dd>
       <dt>Created</dt>
       <dd><%= t @sheet.created_at %></dd>
       <dt>Updated</dt>
