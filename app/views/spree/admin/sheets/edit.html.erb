@@ -34,8 +34,8 @@
     <%= form_for @sheet, as: :spree_sheet, url: admin_update_sheet_path do |f| %>
       <div class="form-group">
         <%= f.label :header_row do %>
-          Header Row
-          <%= f.number_field :header_row, class: 'form-control', tabindex: 1, placeholder: 'Header Row' %>
+          Header Row Number
+          <%= f.number_field :header_row, class: 'form-control', tabindex: 1, placeholder: 'Header Row Number' %>
         <% end %>
       </div>
       <div class="form-group">
@@ -134,7 +134,7 @@
           <div class="row">
             <div class="col-md-11">
               <label for="header_map_#{idx}">Column: <%= idx %></label>
-              <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.product_props), class: 'form-control', id: "header_map_#{idx}" %>
+              <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.header_map_props), class: 'form-control', id: "header_map_#{idx}" %>
 
               <input type="text" id="header_map_prop_<%= idx %>" name="global-map-prop-key" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="display:none" disabled />
 

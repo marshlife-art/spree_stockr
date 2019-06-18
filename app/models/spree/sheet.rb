@@ -8,6 +8,23 @@ class Spree::Sheet < ApplicationRecord
     ['Select Product Property'] + self.global_map_props.keys 
   end
 
+  def self.header_map_props
+    extra_product_props = [:name, :description, :meta_description, :meta_keywords, :meta_title]
+    variant_props = [
+      :sku,
+      :weight,
+      :height,
+      :width,
+      :depth,
+      :cost_price,
+      :position,
+      :cost_currency,
+      :track_inventory,
+      :price
+    ]
+    self.product_props + extra_product_props + variant_props
+  end
+
   def self.global_map_props
     {
       available_on: { 
