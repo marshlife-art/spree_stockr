@@ -19,12 +19,7 @@
 $(function() {
 
   $('#src<%= randID %>').on('change', function(e) {
-    console.log(this.value,
-                this.selectedIndex,
-                this.options[this.selectedIndex].value,
-                $(this).find('option:selected').val(),
-                'is there a global_map_prop?',
-                global_map_props[this.value])
+    // console.log(this.value, this.selectedIndex)
     $('#dest<%= randID %>').prop('disabled', false).val('')
     $('#dest<%= randID %>').select2('destroy')
 
@@ -36,19 +31,34 @@ $(function() {
       $('#dest<%= randID %>').addClass('form-control')
     } else {
       $('#prop<%= randID %>').prop('disabled', true).val('').prop('style','display:none;')
-      
-      if( global_map_props && global_map_props[this.value] && global_map_props[this.value].data ){
+      var global_map_prop = global_map_props[this.value]
+      // console.log('global_map_prop: ', global_map_prop)
+      if( global_map_props && global_map_prop && global_map_prop.data ){
         $('#dest<%= randID %>').removeClass('form-control')
-        $('#dest<%= randID %>').select2({
+        
+        var select2_options = {
           tags: true,
-          tokenSeparators: [',', ';'],
           width: '100%',
           allowClear: true,
-          multiple: global_map_props[this.value].multiple,
-          maximumSelectionSize: global_map_props[this.value].multiple ? 999 : 1,
+          selectOnBlur: true,
+          multiple: global_map_prop.multiple,
+          maximumSelectionSize: global_map_prop.multiple ? 999 : 1,
           placeholder: 'Click here and start typing.',
-          data: global_map_props[this.value].data
-        })
+          data: global_map_prop.data
+        }
+
+        if(global_map_prop.require_choice !== true) {
+          // allow for anything typed in to become the tagg'd value (y'know, like a <input type="text"/> lolol)
+          select2_options['createSearchChoice'] = function(term, data) {
+            if( $(data).filter( function() {
+              return this.text.localeCompare(term)===0
+            }).length===0 ) {
+              return { id:term, text:term }
+            }
+          }
+        }
+
+        $('#dest<%= randID %>').select2(select2_options)
       }
     }
 

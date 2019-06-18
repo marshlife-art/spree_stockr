@@ -10,17 +10,61 @@ class Spree::Sheet < ApplicationRecord
 
   def self.global_map_props
     {
-      available_on: { multiple: false, data: [{id: 'now', text: 'Time.now()'}] },
-      discontinue_on: { multiple: false, data: [{id: 'now', text: 'Time.now()'}] },
-      tax_category_id: { multiple: false, data: Spree::TaxCategory.order(:name).map{|i| {id: i.id, text: i.name}} },
-      shipping_category_id: { multiple: false, data: Spree::ShippingCategory.all.map{|i| {id: i.id, text: i.name}} },
-      promotionable: { multiple: false, data: [{id: 'true', text: 'true'}, {id: 'false', text: 'false'}] },
-      backorderable: { multiple: false, data: [{id: 'true', text: 'true'}, {id: 'false', text: 'false'}] },
-      store_id: { multiple: false, data: Spree::Store.all.map{|store| {id: store.id, text: store.name}} },
-      tag_list: { multiple: true, data: Spree::Tag.all.limit(250).map{|store| {id: store.id, text: store.name}} },
-      property: { multiple: false, data: [] },
-      taxons: { multiple: true, data: Spree::Taxon.all.limit(250).map{|i| {id: i.id, text: i.name}} },
-      stock_location_id: { multiple: false, data: Spree::StockLocation.all.map{|i| {id: i.id, text: i.name}} },
+      available_on: { 
+        require_choice: false,
+        multiple: false,
+        data: [{id: 'now', text: 'Time.now()'}]
+      },
+      discontinue_on: { 
+        require_choice: false,
+        multiple: false,
+        data: [{id: 'now', text: 'Time.now()'}]
+      },
+      tax_category_id: { 
+        require_choice: true,
+        multiple: false,
+        data: Spree::TaxCategory.order(:name).map{|i| {id: i.id, text: i.name}}
+      },
+      shipping_category_id: { 
+        require_choice: true,
+        multiple: false,
+        data: Spree::ShippingCategory.all.map{|i| {id: i.id, text: i.name}}
+      },
+      promotionable: { 
+        require_choice: true,
+        multiple: false,
+        data: [{id: 'true', text: 'true'}, {id: 'false', text: 'false'}]
+      },
+      backorderable: { 
+        require_choice: true,
+        multiple: false,
+        data: [{id: 'true', text: 'true'}, {id: 'false', text: 'false'}]
+      },
+      store_id: { 
+        require_choice: true,
+        multiple: false,
+        data: Spree::Store.all.map{|store| {id: store.id, text: store.name}}
+      },
+      tag_list: { 
+        require_choice: false,
+        multiple: true,
+        data: Spree::Tag.all.limit(250).map{|store| {id: store.id, text: store.name}}
+      },
+      property: { 
+        require_choice: false,
+        multiple: false,
+        data: []
+      },
+      taxons: { 
+        require_choice: false,
+        multiple: true,
+        data: Spree::Taxon.all.limit(250).map{|i| {id: i.id, text: i.name}}
+      },
+      stock_location_id: { 
+        require_choice: true,
+        multiple: false,
+        data: Spree::StockLocation.all.map{|i| {id: i.id, text: i.name}}
+      }
     }
   end
 
