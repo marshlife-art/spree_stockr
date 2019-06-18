@@ -5,7 +5,7 @@ class Spree::Sheet < ApplicationRecord
   has_many_attached :parsed_json_files
 
   def self.product_props
-    ['Select Key'] + self.global_map_props.keys 
+    ['Select Product Property'] + self.global_map_props.keys 
   end
 
   def self.global_map_props

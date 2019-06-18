@@ -131,13 +131,32 @@
 
       <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_header_map_path do |f| %>
         <% @sheet.data['headers'].each_with_index do |header, idx| %>
-        <% id = "header_#{idx}" %>
-          <div class="form-group">
-            <%= label_tag id do %>
-              <%= idx %>
-              <%= text_field_tag id, nil, class: 'form-control', tabindex: 1, placeholder: idx %>
-            <% end %>
+          <div class="row">
+            <div class="col-md-11">
+              <label for="header_map_#{idx}">Column: <%= idx %></label>
+              <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.product_props), class: 'form-control', id: "header_map_#{idx}" %>
+
+              <input type="text" id="header_map_prop_<%= idx %>" name="global-map-prop-key" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="display:none" disabled />
+
+              <script>
+              // #TODO: lolol, use class selectors and define this once ffs... 
+              $(function() {
+                $('#header_map_<%= idx %>').on('change', function(e) {
+                  if(this.value === 'property') {
+                    $('#header_map_prop_<%= idx %>').prop('disabled', false).val('').prop('style','')
+                  }else{
+                    $('#header_map_prop_<%= idx %>').prop('disabled', true).val('').prop('style','display:none;')
+                  }
+                })
+              })
+              </script>
+            </div>
+            <div class="col-md-1 global_map_arrow">
+              &nbsp;
+            </div>
           </div>
+
+
         <% end %>
 
         <div class="form-group">
