@@ -27,21 +27,8 @@
   <% end %>
 <% end if can?(:create, Spree::Sheet) %>
 
-
 <div class="row">
-  <div class="col-md-6">
-    <h3>Sheet Info</h3>
-    <%= form_for @sheet, as: :spree_sheet, url: admin_update_sheet_path do |f| %>
-      <div class="form-group">
-        <%= f.label :header_row do %>
-          Header Row Number
-          <%= f.number_field :header_row, class: 'form-control', tabindex: 1, placeholder: 'Header Row Number' %>
-        <% end %>
-      </div>
-      <div class="form-group">
-        <%= f.submit 'Update Header Row', class: 'btn btn-success', tabindex: 2, disabled: false, id: 'update_sheet' %>
-      </div>
-    <% end %>
+  <div class="col-md-4">
     <dl class="sheet">
       <dt>Status</dt>
       <dd><span class="label <%= @sheet.status_class %>"><%= @sheet.status %></span></dd>
@@ -53,17 +40,39 @@
       <dt>Rows</dt>
       <dd><%= number_with_delimiter(@sheet.rows, :delimiter => ',') %></dd>
       <% end %>
+    </dl>
+  </div>
 
+  <div class="col-md-4">
+    <dl class="sheet">
       <% if @sheet.parsed_json_files.attached? %>
-      <dt>JSON</dt>
+      <dt>Sheet Data:</dt>
         <% @sheet.parsed_json_files.each_with_index do |file, idx| %>
           <dd><%= link_to "#{file.name}(#{idx})", 
     Rails.application.routes.url_helpers.rails_blob_path(file) %>  </dd>
         <% end %>
       <% end %>
     </dl>
-    
-    <br/>
+  </div>
+
+  <div class="col-md-4">
+    <%= form_for @sheet, as: :spree_sheet, url: admin_update_sheet_path do |f| %>
+      <div class="form-group">
+        <%= f.label :header_row do %>
+          Header Row Number
+          <%= f.number_field :header_row, class: 'form-control', tabindex: 1, placeholder: 'Header Row Number' %>
+        <% end %>
+      </div>
+      <div class="form-group">
+        <%= f.submit 'Update Header Row', class: 'btn btn-success', tabindex: 2, disabled: false, id: 'update_sheet' %>
+      </div>
+    <% end %>
+  </div>
+
+</div>
+
+<div class="row">
+  <div class="col-md-6">
 
     <ul class="nav nav-pills">
       <li><h4>Global Mapping</h4></li>
@@ -110,6 +119,20 @@
 
     
   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <div class="col-md-6">
     <% if @sheet.data and @sheet.data['headers'] and !@sheet.data['headers'].empty? %>
    
