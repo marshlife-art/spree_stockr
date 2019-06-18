@@ -5,23 +5,23 @@ class Spree::Sheet < ApplicationRecord
   has_many_attached :parsed_json_files
 
   def self.product_props
-    [ :available_on,
-      :tax_category_id,
-      :shipping_category_id,
-      :promotionable,
-      :discontinue_on,
-      :store_id,
-      :tag_list,
-      :discontinue_on,
-      :property,
-      :taxons,
-      :stock_location_id,
-      :backorderable
-    ]
+    ['Select Key'] + self.global_map_props.keys 
   end
-  
+
   def self.global_map_props
-    self.product_props
+    {
+      available_on: { multiple: false, data: [{id: 'now', text: 'Time.now()'}] },
+      discontinue_on: { multiple: false, data: [{id: 'now', text: 'Time.now()'}] },
+      tax_category_id: { multiple: false, data: Spree::TaxCategory.order(:name).map{|i| {id: i.id, text: i.name}} },
+      shipping_category_id: { multiple: false, data: Spree::ShippingCategory.all.map{|i| {id: i.id, text: i.name}} },
+      promotionable: { multiple: false, data: [{id: 'true', text: 'true'}, {id: 'false', text: 'false'}] },
+      backorderable: { multiple: false, data: [{id: 'true', text: 'true'}, {id: 'false', text: 'false'}] },
+      store_id: { multiple: false, data: Spree::Store.all.map{|store| {id: store.id, text: store.name}} },
+      tag_list: { multiple: true, data: Spree::Tag.all.limit(250).map{|store| {id: store.id, text: store.name}} },
+      property: { multiple: false, data: [] },
+      taxons: { multiple: true, data: Spree::Taxon.all.limit(250).map{|i| {id: i.id, text: i.name}} },
+      stock_location_id: { multiple: false, data: Spree::StockLocation.all.map{|i| {id: i.id, text: i.name}} },
+    }
   end
 
   def file_path

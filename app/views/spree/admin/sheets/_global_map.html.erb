@@ -1,13 +1,59 @@
+<% randID = (0...8).map { (65 + rand(26)).chr }.join %>
 <div class="row">
   <div class="col-md-5">
-    <label for="sheet_global_map_key">Key</label>
-    <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.global_map_props), class: 'form-control' %>
+    <label for="src#{randID}">Key</label>
+    <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.product_props), class: 'form-control', id: "src#{randID}" %>
+
+    <input type="text" id="prop<%= randID %>" name="global-map-prop-key" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="display:none" disabled />
   </div>
   <div class="col-md-1 global_map_arrow">
     <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
   </div>
   <div class="col-md-6">
-    <label for="sheet_global_map_value">Value</label>
-    <%= select_tag :sheet_global_map_value, options_for_select(['Select Destination...']), class: 'form-control' %>
+    <label for="dest#{randID}">Value</label>
+    <input type="text" id="dest<%= randID %>" name="global-map-dest-input" autocomplete="new-password" class="form-control" disabled />
+
   </div>
 </div>
+<script>
+$(function() {
+
+  $('#src<%= randID %>').on('change', function(e) {
+    console.log(this.value,
+                this.selectedIndex,
+                this.options[this.selectedIndex].value,
+                $(this).find('option:selected').val(),
+                'is there a global_map_prop?',
+                global_map_props[this.value])
+    $('#dest<%= randID %>').prop('disabled', false).val('')
+    $('#dest<%= randID %>').select2('destroy')
+
+    if(this.selectedIndex === 0) {
+      $('#dest<%= randID %>').prop('disabled', true)
+      $('#dest<%= randID %>').addClass('form-control')
+    } else if(this.value === 'property') {
+      $('#prop<%= randID %>').prop('disabled', false).val('').prop('style','')
+      $('#dest<%= randID %>').addClass('form-control')
+    } else {
+      $('#prop<%= randID %>').prop('disabled', true).val('').prop('style','display:none;')
+      
+      if( global_map_props && global_map_props[this.value] && global_map_props[this.value].data ){
+        $('#dest<%= randID %>').removeClass('form-control')
+        $('#dest<%= randID %>').select2({
+          tags: true,
+          tokenSeparators: [',', ';'],
+          width: '100%',
+          allowClear: true,
+          multiple: global_map_props[this.value].multiple,
+          maximumSelectionSize: global_map_props[this.value].multiple ? 999 : 1,
+          placeholder: 'Click here and start typing.',
+          data: global_map_props[this.value].data
+        })
+      }
+    }
+
+  })
+
+  
+})
+</script>
