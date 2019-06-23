@@ -20,7 +20,10 @@
     <tr class="sheet" id="sheet_<%= sheet.id %>">
       <td><%= link_to sheet.name, admin_edit_sheet_path(sheet.id) %></td>
       <td><%= sheet.created_at.to_formatted_s(:long) %></td>
-      <td><%= "#{sheet.rows} Rows" if sheet.rows %></td>
+      <td>
+        <span class="label <%= sheet.status_class %>"><%= sheet.status %></span> 
+        <%= "#{number_with_delimiter(sheet.rows, :delimiter => ',')} Rows" if sheet.rows %>
+      </td>
       <td>
       <% if sheet.processing? %>
       <div class="spinner-border spinner-border-sm" role="status">

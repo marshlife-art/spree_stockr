@@ -155,7 +155,7 @@
       <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_header_map_path do |f| %>
         <% @sheet.data['headers'].each_with_index do |header, idx| %>
           <div class="row">
-            <div class="col-md-11">
+            <div class="col-md-11 col-md-offset-1">
               <label for="header_map_#{idx}"><%= idx %><%= ": #{@sheet.data["headers"][idx]}" rescue '' %></label>
               <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.header_map_props), class: 'form-control', id: "header_map_#{idx}" %>
 
@@ -173,9 +173,6 @@
                 })
               })
               </script>
-            </div>
-            <div class="col-md-1 global_map_arrow">
-              &nbsp;
             </div>
           </div>
 
