@@ -17,6 +17,12 @@ module Spree
 
       def update
         @sheet = Spree::Sheet.find_by_id(params[:id])
+
+        if @sheet.header_row.to_s != sheet_params[:header_row]
+          @sheet.update_header_row 
+          flash[:success] = "Header row updated!"
+        end
+
         @sheet.update_attributes(sheet_params)
         redirect_to admin_edit_sheet_path(@sheet.id)
       end

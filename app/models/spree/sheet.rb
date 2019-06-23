@@ -5,7 +5,7 @@ class Spree::Sheet < ApplicationRecord
   has_many_attached :parsed_json_files
 
   def self.product_props
-    ['Select Product Property'] + self.global_map_props.keys 
+    ['Select Product Attribute'] + self.global_map_props.keys 
   end
 
   def self.header_map_props
@@ -106,5 +106,10 @@ class Spree::Sheet < ApplicationRecord
       'label-danger'
     end
   end
+
+  def update_header_row
+    GetSheetHeadersJob.perform_now(id)
+  end
+
 end
   

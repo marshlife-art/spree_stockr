@@ -156,7 +156,7 @@
         <% @sheet.data['headers'].each_with_index do |header, idx| %>
           <div class="row">
             <div class="col-md-11">
-              <label for="header_map_#{idx}">Column: <%= idx %></label>
+              <label for="header_map_#{idx}"><%= idx %><%= ": #{@sheet.data["headers"][idx]}" rescue '' %></label>
               <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.header_map_props), class: 'form-control', id: "header_map_#{idx}" %>
 
               <input type="text" id="header_map_prop_<%= idx %>" name="global-map-prop-key" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="display:none" disabled />
@@ -194,18 +194,11 @@
 <script>
 var global_map_props = <%= Spree::Sheet.global_map_props.to_json.html_safe %>;
 
-(function() {
-  // var sheet_data = <%= @sheet.data.to_json.html_safe %>
-  // console.log(sheet_data)
-  // if(sheet_data && sheet_data.headers && sheet_data.headers.length){
-  //   var submit_new_sheet = document.getElementById('submit_new_sheet')
-  // }
-
-  var add_global_property = document.getElementById('add_global_property')
-  if(add_global_property){
-    add_global_property.addEventListener('click', function(e){
-      console.log('add_global_property CLICK!')
-    })
-  }
-})()
+// (function() {
+//   // var sheet_data = <%= @sheet.data.to_json.html_safe %>
+//   // console.log(sheet_data)
+//   // if(sheet_data && sheet_data.headers && sheet_data.headers.length){
+//   //   var submit_new_sheet = document.getElementById('submit_new_sheet')
+//   // }
+// })()
 </script>
