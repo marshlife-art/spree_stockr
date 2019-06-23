@@ -16,10 +16,10 @@ class Spree::Sheet < ApplicationRecord
       :height,
       :width,
       :depth,
-      :cost_price,
       :position,
       :cost_currency,
       :track_inventory,
+      :cost_price,
       :price
     ]
     self.product_props + extra_product_props + variant_props

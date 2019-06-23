@@ -1,17 +1,17 @@
 <% randID = (0...8).map { (65 + rand(26)).chr }.join %>
 <div class="row">
   <div class="col-xs-6 col-sm-5">
-    <label for="src#{randID}">Key</label>
-    <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.product_props), class: 'form-control', id: "src#{randID}" %>
+    <label for="src<%= randID %>">Key</label>
+    <%= select_tag "global_map[#{randID}][key]", options_for_select(Spree::Sheet.product_props), class: 'form-control', id: "src#{randID}" %>
 
-    <input type="text" id="prop<%= randID %>" name="global-map-prop-key" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="display:none" disabled />
+    <input type="text" id="prop<%= randID %>" name="global_map[<%= randID %>][prop_key]" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="display:none" disabled />
   </div>
   <div class="col-xs-1 hidden-xs global_map_arrow">
     <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
   </div>
   <div class="col-xs-6">
-    <label for="dest#{randID}">Value</label>
-    <input type="text" id="dest<%= randID %>" name="global-map-dest-input" autocomplete="new-password" class="form-control" disabled />
+    <label for="dest<%= randID %>">Value</label>
+    <input type="text" id="dest<%= randID %>" name="global_map[<%= randID %>][dest]" autocomplete="new-password" class="form-control" disabled />
 
   </div>
 </div>

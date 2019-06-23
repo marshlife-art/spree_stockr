@@ -48,25 +48,36 @@ module Spree
         render json: @parsed_json_files
       end
 
-      def header_map
+      def update_header_map
+        log("header_map params: #{params['header_map']}")
         @sheet = Spree::Sheet.find_by_id(params[:id])
-        @sheet.data['header_map'] = params[:header_map]
+        
+        @sheet.data['header_map'] = params["header_map"]
         @sheet.save
-        # redirect_to admin_edit_sheet_path(@sheet.id)
+        flash[:success] = "Updated header mapping!"
+        redirect_to admin_edit_sheet_path(@sheet.id)
       end
 
-      def global_map
+      def update_global_map
+        log("header_map params: #{params}")
         @sheet = Spree::Sheet.find_by_id(params[:id])
         unless params[:global_map].blank?
           @sheet.data['global_map'] = params[:global_map]
           @sheet.save
         end
-        # redirect_to admin_edit_sheet_path(@sheet.id)
+        flash[:success] = "Updated global mapping!"
+        redirect_to admin_edit_sheet_path(@sheet.id)
       end
      
       private
       def sheet_params
         params.require(:spree_sheet).permit(:file, :name, :header_row)
+      end
+
+      def log(message=nil)
+        return unless Rails.env.development? and message.present?
+        @logger ||= Logger.new(File.join(Rails.root, 'log', 'debug.log'))
+        @logger.debug(message) 
       end
 
     end

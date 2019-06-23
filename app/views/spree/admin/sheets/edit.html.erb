@@ -76,27 +76,40 @@
 
     <ul class="nav nav-pills">
       <li><h4>Global Mapping</h4></li>
+      <% if Spree::Sheet.count > 1 %>
       <li role="presentation" class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-          <li><a href="#">Save Global Mapping Preset</a></li>
-          <li role="separator" class="divider"></li>
           <li><a href="#">Load Global Mapping Preset</a></li>
+          <li role="separator" class="divider"></li>
         </ul>
       </li>
+      <% end %>
     </ul>
 
     <br/>
 
-    <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_global_map_path do |f| %>
-      
+    <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_global_map_patch_path, remote: true do |f| %>
       
       <div id="global_map_props">
         <% if @sheet.data and @sheet.data['global_map'] and !@sheet.data['global_map'].empty? %>
           <% @sheet.data['global_map'].each do |item| %>
-            <%= item %>
+            <div class="row">
+              <div class="col-xs-6 col-sm-5">
+                <%= item[1]["key"] rescue '' %>
+                <%= "(property: #{item[1]["prop_key"]})" if item[1]["prop_key"] %>
+                
+              </div>
+              <div class="col-xs-1 hidden-xs">
+                <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+              </div>
+              <div class="col-xs-6">
+                <%= item[1]["dest"] rescue '' %>
+              </div>
+            </div>
+
           <% end %>
         <% end %>
 
@@ -111,26 +124,11 @@
       </div>
 
       <div class="form-group submit-group">
-        <%= f.submit 'Save Global Mapping', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
+        <%= f.submit 'Save Global Mapping', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_global_map' %>
       </div>
     <% end %>
     
-
-
-    
   </div>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   <div class="col-md-6">
@@ -138,33 +136,36 @@
    
       <ul class="nav nav-pills">
         <li><h4>Header Mapping</h4></li>
+        <% if Spree::Sheet.count > 1 %>
         <li role="presentation" class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
             <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
-            <li><a href="#">Save Header Mapping Preset</a></li>
-            <li role="separator" class="divider"></li>
             <li><a href="#">Load Header Mapping Preset</a></li>
+            <li role="separator" class="divider"></li>
           </ul>
         </li>
+        <% end %>
       </ul>
 
       <br/>
 
-      <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_header_map_path do |f| %>
+      <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_header_map_patch_path, remote: true do |f| %>
         <% @sheet.data['headers'].each_with_index do |header, idx| %>
           <div class="row">
             <div class="col-md-11 col-md-offset-1">
               <label for="header_map_#{idx}"><%= idx %><%= ": #{@sheet.data["headers"][idx]}" rescue '' %></label>
-              <%= select_tag :sheet_global_map_key, options_for_select(Spree::Sheet.header_map_props), class: 'form-control', id: "header_map_#{idx}" %>
+              <%= select_tag "header_map[#{idx}][key]", options_for_select(Spree::Sheet.header_map_props, (@sheet.data['header_map'][idx.to_s]['key'] rescue nil) ), class: 'form-control', id: "header_map_#{idx}" %>
 
-              <input type="text" id="header_map_prop_<%= idx %>" name="global-map-prop-key" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="display:none" disabled />
+              <% prop_key = @sheet.data['header_map'][idx.to_s]['prop_key'] rescue nil %>
+              <input type="text" id="header_map_prop_<%= idx %>" name="header_map[<%= idx %>][prop_key]" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="<%= "display:none" if prop_key.blank? %>" value="<%= prop_key %>" <%= "disabled" unless prop_key %> />
 
               <script>
               // #TODO: lolol, use class selectors and define this once ffs... 
               $(function() {
                 $('#header_map_<%= idx %>').on('change', function(e) {
+                  console.log('header_map idx on change!')
                   if(this.value === 'property') {
                     $('#header_map_prop_<%= idx %>').prop('disabled', false).val('').prop('style','')
                   }else{
