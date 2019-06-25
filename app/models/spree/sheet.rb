@@ -108,7 +108,7 @@ class Spree::Sheet < ApplicationRecord
   end
 
   def update_header_row
-    GetSheetHeadersJob.perform_now(id)
+    GetSheetHeadersJob.perform_later(id)
   end
 
 end

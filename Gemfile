@@ -16,6 +16,7 @@ gem 'spree_auth_devise', github: 'spree/spree_auth_devise', branch: 'master'
 gem 'rails-controller-testing'
 
 gem 'roo', '~> 2.8'
+gem 'resque'
 
 group :development, :test do
   gem 'rubocop', require: false

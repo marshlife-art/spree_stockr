@@ -19,8 +19,7 @@ module Spree
         @sheet = Spree::Sheet.find_by_id(params[:id])
 
         if @sheet.header_row.to_s != sheet_params[:header_row]
-          @sheet.update_header_row 
-          flash[:success] = "Header row updated!"
+          @sheet.update_header_row
         end
 
         @sheet.update_attributes(sheet_params)
@@ -30,15 +29,17 @@ module Spree
       def delete
         @sheet_id = params[:id]
         sheet = Spree::Sheet.find_by_id(@sheet_id)
+        flash[:success] = 'Sheet destroyed.'
         sheet.destroy
       end
 
       def process_file
         @sheet = Spree::Sheet.find_by_id(params[:id])
-        if(@sheet.active?)
+        if(!@sheet.processing?)
           @sheet.processing!
           ImportProductsSheetJob.perform_later(@sheet.id)
         end
+        flash[:success] = 'Processing file...'
         redirect_to admin_edit_sheet_path(@sheet.id)
       end
 
@@ -49,29 +50,34 @@ module Spree
       end
 
       def update_header_map
-        log("header_map params: #{params['header_map']}")
+        log("update_header_map params: #{params['header_map']}")
         @sheet = Spree::Sheet.find_by_id(params[:id])
         
         @sheet.data['header_map'] = params["header_map"]
         @sheet.save
-        flash[:success] = "Updated header mapping!"
+        flash[:success] = "Updated header mapping"
         redirect_to admin_edit_sheet_path(@sheet.id)
       end
 
       def update_global_map
-        log("header_map params: #{params}")
+        log("update_global_map params: #{params}")
         @sheet = Spree::Sheet.find_by_id(params[:id])
         unless params[:global_map].blank?
           @sheet.data['global_map'] = params[:global_map]
           @sheet.save
         end
-        flash[:success] = "Updated global mapping!"
+        flash[:success] = "Updated global mapping"
         redirect_to admin_edit_sheet_path(@sheet.id)
       end
-     
+
+      def sheet_status
+        @sheet = Spree::Sheet.find_by_id(params[:id])
+        render json: {status: @sheet.status}
+      end
+      
       private
       def sheet_params
-        params.require(:spree_sheet).permit(:file, :name, :header_row)
+        params.require(:spree_sheet).permit(:file, :name, :header_row, :group_column)
       end
 
       def log(message=nil)

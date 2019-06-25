@@ -17,6 +17,7 @@ Spree::Core::Engine.add_routes do
 
       patch '/sheets/update/:id', to: 'sheets#update', as: :update_sheet
       delete '/sheets/delete/:id', to: 'sheets#delete', as: :delete_sheet
+      get '/sheets/status/:id', to: 'sheets#sheet_status', as: :sheet_status
     end
   end
   

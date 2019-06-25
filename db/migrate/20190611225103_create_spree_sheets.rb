@@ -5,6 +5,7 @@ class CreateSpreeSheets < ActiveRecord::Migration[5.2]
       t.string :name
       t.integer :rows
       t.integer :header_row
+      t.integer :group_column
       if ActiveRecord::Base.connection.adapter_name == 'postgresql'
         t.jsonb :data, null: false, default: {}
       else

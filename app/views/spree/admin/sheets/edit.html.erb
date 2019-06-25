@@ -18,15 +18,39 @@
 <% end %>
 
 <% content_for :page_actions do %>
-  <% if @sheet.processing? %>
-    <div class="spinner-border" role="status">
-      <span class="sr-only">Loading...</span>
-    </div>
-  <% elsif @sheet.active? or @sheet.failed_processing? %>
+  <% if @sheet.active? or @sheet.ready? or @sheet.failed_processing? %>
     <%= button_link_to 'Process File', admin_process_sheet_path(@sheet.id), { class: "btn-success", icon: 'file', id: 'admin_new_sheet' } %>
   <% end %>
 <% end if can?(:create, Spree::Sheet) %>
 
+<% if @sheet.processing? %>
+<div class="progress">
+  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+    <span class="sr-only">Processing</span>
+  </div>
+</div>
+
+<h3>Processing...</h3>
+
+<script>
+(function() {
+  var statusCheckInterval = window.setInterval(function(){
+    fetch('<%= admin_sheet_status_url %>')
+    .then(function(response) {
+      return response.json()
+    })
+    .then(function(sheetStatus) {
+      console.log(JSON.stringify(sheetStatus))
+      if(sheetStatus.status !== 'processing'){
+        window.clearInterval(statusCheckInterval)
+        window.location.reload(false)
+      }
+    })
+  }, 10000)
+})()
+</script>
+
+<% else %>
 <div class="row">
   <div class="col-md-4">
     <dl class="sheet">
@@ -41,21 +65,7 @@
       <dd><%= number_with_delimiter(@sheet.rows, :delimiter => ',') %></dd>
       <% end %>
     </dl>
-  </div>
 
-  <div class="col-md-4">
-    <dl class="sheet">
-      <% if @sheet.parsed_json_files.attached? %>
-      <dt>Sheet Data:</dt>
-        <% @sheet.parsed_json_files.each_with_index do |file, idx| %>
-          <dd><%= link_to "#{file.name}(#{idx})", 
-    Rails.application.routes.url_helpers.rails_blob_path(file) %>  </dd>
-        <% end %>
-      <% end %>
-    </dl>
-  </div>
-
-  <div class="col-md-4">
     <%= form_for @sheet, as: :spree_sheet, url: admin_update_sheet_path do |f| %>
       <div class="form-group">
         <%= f.label :header_row do %>
@@ -64,9 +74,30 @@
         <% end %>
       </div>
       <div class="form-group">
+        <%= f.label :group_column do %>
+          Group Column Number
+          <%= f.number_field :group_column, class: 'form-control', tabindex: 1, placeholder: 'Group Column Number' %>
+        <% end %>
+      </div>
+      
+      <div class="form-group">
         <%= f.submit 'Update Header Row', class: 'btn btn-success', tabindex: 2, disabled: false, id: 'update_sheet' %>
       </div>
     <% end %>
+
+  </div>
+
+  <div class="col-md-8">
+    <dl class="sheet">
+      <% if @sheet.parsed_json_files.attached? %>
+      <dt>Sheet Data:</dt>
+        <% @sheet.parsed_json_files.each_with_index do |file, idx| %>
+          <% item_count = @sheet.data["parsed_json_files"][file.filename.to_s.sub('_rows.json','')] rescue nil %>
+          <dd><%= link_to "#{file.filename.to_s.sub('_rows.json','')} (#{item_count})", 
+    Rails.application.routes.url_helpers.rails_blob_path(file) %>  </dd>
+        <% end %>
+      <% end %>
+    </dl>
   </div>
 
 </div>
@@ -96,6 +127,9 @@
       <div id="global_map_props">
         <% if @sheet.data and @sheet.data['global_map'] and !@sheet.data['global_map'].empty? %>
           <% @sheet.data['global_map'].each do |item| %>
+
+            <%# TODO: pass @item local variable %>
+            <%# render 'global_map' %>
             <div class="row">
               <div class="col-xs-6 col-sm-5">
                 <%= item[1]["key"] rescue '' %>
@@ -112,7 +146,7 @@
 
           <% end %>
         <% end %>
-
+        
         <%= render 'global_map' %>
 
       </div>
@@ -200,3 +234,4 @@ var global_map_props = <%= Spree::Sheet.global_map_props.to_json.html_safe %>;
 //   // }
 // })()
 </script>
+<% end %>
