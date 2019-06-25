@@ -9,11 +9,11 @@ class ImportProductsSheetJob < ApplicationJob
     begin
       sheet = Spree::Sheet.find_by_id sheet_id
       process_sheet(sheet)
-    rescue => err
-      puts "[ImportProductsSheetJob] CAUGHT ERR: #{err}"
+    rescue => error
+      puts "[ImportProductsSheetJob] CAUGHT ERR: #{error}"
       sheet.status = :failed_processing
       sheet.data["history"] ||= []
-      sheet.data["history"] << {date: Time.now, err: err}
+      sheet.data["history"] << {date: Time.now, error: error}
       sheet.save
       raise
     end
@@ -25,7 +25,7 @@ class ImportProductsSheetJob < ApplicationJob
     
     raise "sheet not found" if !sheet 
     raise "sheet is currently processing" if sheet.processing? 
-    raise "no file" if sheet.file.blank? 
+    raise "no file" if !sheet.file.attached?
     raise "no mapping data" if sheet.data.blank? 
     raise "no header mapping" if sheet.data["header_map"].blank?
     
@@ -53,7 +53,7 @@ class ImportProductsSheetJob < ApplicationJob
 
   def write_sheet_history(sheet, opts) 
     sheet.data["history"] ||= []
-    sheet.data["history"] << {date: Time.now, success: opts[:success], err: opts[:err]}
+    sheet.data["history"] << {date: Time.now, success: opts[:success], error: opts[:error]}
   end
 
 end

@@ -9,11 +9,11 @@ class ParseProductsSheetJob < ApplicationJob
     begin
       sheet = Spree::Sheet.find_by_id sheet_id
       process_sheet(sheet)
-    rescue => err
-      puts "[ParseProductsSheetJob] CAUGHT ERR: #{err}"
+    rescue => error
+      puts "[ParseProductsSheetJob] CAUGHT error: #{error}"
       if sheet
         sheet.status = :failed_processing
-        write_sheet_history(sheet, {err: err})
+        write_sheet_history(sheet, {error: error})
         sheet.save
       end
       raise
@@ -26,7 +26,7 @@ class ParseProductsSheetJob < ApplicationJob
     
     raise "sheet not found" if !sheet 
     raise "sheet is currently processing" if sheet.processing? 
-    raise "no file" if sheet.file.blank? 
+    raise "no file" if !sheet.file.attached?
   
     p "[ParseProductsSheetJob] got sheet file: #{sheet.file.inspect}"
 
@@ -81,6 +81,6 @@ class ParseProductsSheetJob < ApplicationJob
 
   def write_sheet_history(sheet, opts) 
     sheet.data["history"] ||= []
-    sheet.data["history"] << {date: Time.now, success: opts[:success], err: opts[:err]}
+    sheet.data["history"] << {date: Time.now, success: opts[:success], error: opts[:error]}
   end
 end
