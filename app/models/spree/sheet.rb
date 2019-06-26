@@ -137,10 +137,10 @@ class Spree::Sheet < ApplicationRecord
       # HEADER MAP
       hm_values.each do |product_prop|
         next if product_prop === DEFAULT_PRODUCT_PROP_VALUE
-        cell_index = hm_values.find_index("sku") rescue nil
+        cell_index = hm_values.find_index(product_prop) rescue nil
         next if cell_index.nil? or cells[cell_index].nil?
         value = cells[cell_index]
-        if self.variant_props.includes? product_prop
+        if self.variant_props.include? product_prop.to_sym
           product.master[product_prop] = value
         else
           product[product_prop] = value
@@ -152,7 +152,7 @@ class Spree::Sheet < ApplicationRecord
         gm["dest"] = Time.now if gm["dest"] === 'now'
         if gm["key"] === 'property'
           product.set_property(gm["prop_key"], gm["dest"]) unless gm["prop_key"].nil? or gm["dest"].nil?
-        elsif self.variant_props.includes? gm["key"]
+        elsif self.variant_props.include? gm["key"].to_sym
           product.master[gm["key"]] = gm["dest"]
         else
           product[gm["key"]] = gm["dest"]

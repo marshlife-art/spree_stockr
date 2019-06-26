@@ -9,7 +9,7 @@ class ImportProductsSheetJob < ApplicationJob
       sheet = Spree::Sheet.find_by_id sheet_id
       process_sheet(sheet)
     rescue => error
-      puts "[ImportProductsSheetJob] CAUGHT ERR: #{error}"
+      puts "[ImportProductsSheetJob] CAUGHT ERR: #{error.inspect}"
       sheet.status = :failed_processing
       sheet.data["history"] ||= []
       sheet.data["history"] << {date: Time.now, error: error}
@@ -40,14 +40,18 @@ class ImportProductsSheetJob < ApplicationJob
       # Array of Excelx::Cell objects
       cells = row.collect{|c| c.value.to_s.strip}
       begin
-        new_product = Spree::Product
-        .where(sku: cells[sku_index])
-        .first_or_create! do |product|
+        variant = Spree::Variant.where(sku: cells[sku_index])
+        new_product = variant.first.product unless variant.empty?
+
+        new_product ||= Spree::Product
+        .create do |product|
           sheet.map_cells_to_product(cells, product)
         end
-        new_product.save
+        new_product.save!
+        p "!!!!w00t!!!! CREATED NEW_PRODUCT #{new_product.inspect}"
         new_products += 1
-      rescue
+      rescue => err
+        p "CAUGHT ERR CREATING PRODUCT! #{err.inspect}"
         # :/
         missed_rows += 1
       end

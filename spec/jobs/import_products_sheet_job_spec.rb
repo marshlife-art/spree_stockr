@@ -53,7 +53,9 @@ RSpec.describe ImportProductsSheetJob, type: :job do
     
     expect(@sheet.data["history"].last["error"]).to be nil
 
-    expect(Spree::Product.where(sheet_id: @sheet.id).count).to be >= @sheet.rows, "expect more products, history: #{@sheet.data["history"]}"
+    expect(@sheet.data["history"].last["success"]).to eq "processed_rows: 3, new_products: 3, missed_rows: 0."
+
+    expect(Spree::Product.where(sheet_id: @sheet.id).count).to be >= @sheet.rows
 
   end
   
