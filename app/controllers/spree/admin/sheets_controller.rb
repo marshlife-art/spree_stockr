@@ -37,9 +37,19 @@ module Spree
         @sheet = Spree::Sheet.find_by_id(params[:id])
         if(!@sheet.processing?)
           @sheet.processing!
-          ImportProductsSheetJob.perform_later(@sheet.id)
+          ParseProductsSheetJob.perform_later(@sheet.id)
         end
         flash[:success] = 'Processing file...'
+        redirect_to admin_edit_sheet_path(@sheet.id)
+      end
+
+      def import_products
+        @sheet = Spree::Sheet.find_by_id(params[:id])
+        if(@sheet.active? or @sheet.ready? or @sheet.failed_processing?)
+          @sheet.processing!
+          ImportProductsSheetJob.perform_later(@sheet.id)
+        end
+        flash[:success] = 'Importing products...'
         redirect_to admin_edit_sheet_path(@sheet.id)
       end
 

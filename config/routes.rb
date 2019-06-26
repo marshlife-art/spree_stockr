@@ -9,6 +9,7 @@ Spree::Core::Engine.add_routes do
       post '/sheets/new', to: 'sheets#create', as: :create_new_sheet
       get '/sheets/edit/:id', to: 'sheets#edit', as: :edit_sheet
       get '/sheets/process/:id', to: 'sheets#process_file', as: :process_sheet
+      get '/sheets/import_products/:id', to: 'sheets#import_products', as: :import_products_sheet
       get '/sheets/get_parsed_json_files/:id', to: 'sheets#get_parsed_json_files', as: :get_parsed_json_files
       
       get '/sheets/global_map/:id', to: 'sheets#global_map', as: :sheet_global_map

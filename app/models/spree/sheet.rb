@@ -4,14 +4,14 @@ class Spree::Sheet < ApplicationRecord
   has_one_attached :file
   has_many_attached :parsed_json_files
 
+  DEFAULT_PRODUCT_PROP_VALUE = 'none'
+
   def self.product_props
-    ['Select Product Attribute'] + self.global_map_props.keys 
+    [DEFAULT_PRODUCT_PROP_VALUE] + self.global_map_props.keys 
   end
 
-  def self.header_map_props
-    extra_product_props = [:name, :description, :meta_description, :meta_keywords, :meta_title]
-    variant_props = [
-      :sku,
+  def self.variant_props
+    [ :sku,
       :weight,
       :height,
       :width,
@@ -22,7 +22,11 @@ class Spree::Sheet < ApplicationRecord
       :cost_price,
       :price
     ]
-    self.product_props + extra_product_props + variant_props
+  end
+
+  def self.header_map_props
+    extra_product_props = [:name, :description, :meta_description, :meta_keywords, :meta_title]
+    self.product_props + extra_product_props + self.variant_props
   end
 
   def self.global_map_props
@@ -109,6 +113,58 @@ class Spree::Sheet < ApplicationRecord
 
   def update_header_row
     GetSheetHeadersJob.perform_later(id)
+  end
+
+  def header_map_values
+    data["header_map"].keys.collect{|k| data["header_map"][k]["key"] } rescue nil
+  end
+
+  def global_map_values
+    data["global_map"].collect{|k| k[1] } rescue []
+  end
+
+  def sku_index
+    header_map_values.find_index "sku" rescue nil
+  end
+
+  def map_cells_to_product(cells, product)
+    
+    hm_values = header_map_values
+    return if hm_values.nil?
+    gm_values = global_map_values
+    
+    begin 
+      # HEADER MAP
+      hm_values.each do |product_prop|
+        next if product_prop === DEFAULT_PRODUCT_PROP_VALUE
+        cell_index = hm_values.find_index("sku") rescue nil
+        next if cell_index.nil? or cells[cell_index].nil?
+        value = cells[cell_index]
+        if self.variant_props.includes? product_prop
+          product.master[product_prop] = value
+        else
+          product[product_prop] = value
+        end
+      end
+      # GLOBAL MAP
+      gm_values.each do |gm|
+        next if gm["dest"].nil? or gm["key"].nil?
+        gm["dest"] = Time.now if gm["dest"] === 'now'
+        if gm["key"] === 'property'
+          product.set_property(gm["prop_key"], gm["dest"]) unless gm["prop_key"].nil? or gm["dest"].nil?
+        elsif self.variant_props.includes? gm["key"]
+          product.master[gm["key"]] = gm["dest"]
+        else
+          product[gm["key"]] = gm["dest"]
+        end
+      end
+
+      product.sheet_id = id
+
+      return product
+    rescue => err
+      return nil
+    end
   end
 
 end

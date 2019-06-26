@@ -28,7 +28,7 @@ class ParseProductsSheetJob < ApplicationJob
     raise "sheet is currently processing" if sheet.processing? 
     raise "no file" if !sheet.file.attached?
   
-    p "[ParseProductsSheetJob] got sheet file: #{sheet.file.inspect}"
+    # p "[ParseProductsSheetJob] got sheet file: #{sheet.file.inspect}"
 
     xlsx = Roo::Spreadsheet.open(sheet.file_path, extension: :xlsx)
 
@@ -61,8 +61,10 @@ class ParseProductsSheetJob < ApplicationJob
         json_data = {rows: []}
 
         # iterate thru rowz
-        offset = processed_rows == 0 ? sheet.header_row : processed_rows
+        offset = processed_rows == 0 ? (sheet.header_row > sheet.rows ? sheet.rows : sheet.header_row ) : processed_rows
 
+        break if offset >= sheet.rows
+        
         xlsx.each_row_streaming(offset: offset, max_rows: 10000) do |row|
           json_data[:rows].push row.collect{|c| c.value.to_s.strip}
           processed_rows += 1

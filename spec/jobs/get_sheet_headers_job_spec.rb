@@ -21,7 +21,7 @@ RSpec.describe GetSheetHeadersJob, type: :job do
   
     it "should process xlsx files" do
       puts "testing file: #{file_xlsx}"
-      @sheet = Spree::Sheet.new(name: 'test', header_row: 6)
+      @sheet = Spree::Sheet.new(name: 'test', header_row: 1)
       @sheet.file.attach(io: File.open(file_xlsx), filename:file_xlsx)
       @sheet.save
       @sheet.reload

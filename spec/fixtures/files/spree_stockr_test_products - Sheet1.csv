@@ -1,0 +1,4 @@
+sku,name,description,tag_list,price,cost_price,property,property
+1234,foo name,foo description,some tag,6.66,3.33,gf,beep
+9876,another foo,lorem ipsum foo,some tag,5.55,2.22,,beep
+5432,yet another,zomg what is this,a tag,4.44,1.11,zork,

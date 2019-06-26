@@ -19,7 +19,10 @@
 
 <% content_for :page_actions do %>
   <% if @sheet.active? or @sheet.ready? or @sheet.failed_processing? %>
-    <%= button_link_to 'Process File', admin_process_sheet_path(@sheet.id), { class: "btn-success", icon: 'file', id: 'admin_new_sheet' } %>
+    <div class="btn-group-vertical" role="group" aria-label="sheet actions">
+      <%= button_link_to 'Process File', admin_process_sheet_path(@sheet.id), { class: "btn-default", icon: 'file', id: 'admin_new_sheet' } %>
+      <%= button_link_to 'Import Products', admin_import_products_sheet_path(@sheet.id), { class: "btn-primary", icon: 'import', id: 'admin_import_products_sheet' } %>
+    </div>
   <% end %>
 <% end if can?(:create, Spree::Sheet) %>
 
