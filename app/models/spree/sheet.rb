@@ -7,20 +7,16 @@ class Spree::Sheet < ApplicationRecord
   DEFAULT_PRODUCT_PROP_VALUE = 'none'
 
   def self.product_props
-    [DEFAULT_PRODUCT_PROP_VALUE] + self.global_map_props.keys 
+    [DEFAULT_PRODUCT_PROP_VALUE] + [:sku, :cost_currency, :cost_price, :price] + self.global_map_props.keys 
   end
 
   def self.variant_props
-    [ :sku,
-      :weight,
+    [ :weight,
       :height,
       :width,
       :depth,
       :position,
-      :cost_currency,
-      :track_inventory,
-      :cost_price,
-      :price
+      :track_inventory
     ]
   end
 
@@ -36,11 +32,12 @@ class Spree::Sheet < ApplicationRecord
         multiple: false,
         data: [{id: 'now', text: 'Time.now()'}]
       },
-      discontinue_on: { 
-        require_choice: false,
-        multiple: false,
-        data: [{id: 'now', text: 'Time.now()'}]
-      },
+      # TODO: date parsing...
+      # discontinue_on: { 
+      #   require_choice: false,
+      #   multiple: false,
+      #   data: [{id: 'now', text: 'Time.now()'}]
+      # },
       tax_category_id: { 
         require_choice: true,
         multiple: false,
@@ -76,7 +73,7 @@ class Spree::Sheet < ApplicationRecord
         multiple: false,
         data: []
       },
-      taxons: { 
+      taxon_ids: { 
         require_choice: false,
         multiple: true,
         data: Spree::Taxon.all.limit(250).map{|i| {id: i.id, text: i.name}}
@@ -116,7 +113,7 @@ class Spree::Sheet < ApplicationRecord
   end
 
   def header_map_values
-    data["header_map"].keys.collect{|k| data["header_map"][k]["key"] } rescue nil
+    data["header_map"].keys.collect{|k| data["header_map"][k] } rescue nil
   end
 
   def global_map_values
@@ -124,47 +121,66 @@ class Spree::Sheet < ApplicationRecord
   end
 
   def sku_index
-    header_map_values.find_index "sku" rescue nil
+    header_map_values.find_index{|v| v["key"] == "sku"} rescue nil
   end
 
-  def map_cells_to_product(cells, product)
+  def map_cells_to_product(cells)
     
+    product_attributes = {}
+    product_attributes[:master] = {}
+    product_attributes[:properties] = []
+
     hm_values = header_map_values
     return if hm_values.nil?
     gm_values = global_map_values
     
-    begin 
+    # begin 
       # HEADER MAP
-      hm_values.each do |product_prop|
-        next if product_prop === DEFAULT_PRODUCT_PROP_VALUE
-        cell_index = hm_values.find_index(product_prop) rescue nil
+      hm_values.each do |hm|
+        product_prop = hm["key"]
+        next if product_prop == DEFAULT_PRODUCT_PROP_VALUE
+        cell_index = hm_values.find_index{|v| v["key"] == product_prop} rescue nil
         next if cell_index.nil? or cells[cell_index].nil?
         value = cells[cell_index]
-        if self.variant_props.include? product_prop.to_sym
-          product.master[product_prop] = value
-        else
-          product[product_prop] = value
+        if product_prop == 'property' # or !hm["prop_key"].nil?
+          product_attributes[:properties] << [hm["prop_key"], value]
+        elsif Spree::Product.has_attribute? product_prop or Spree::Product.method_defined? product_prop
+          if product_prop == 'taxon_ids'
+            product_attributes[product_prop.to_sym] = value.split(',').map(&:to_i)
+          else
+            product_attributes[product_prop.to_sym] = value
+          end
+        elsif Spree::Variant.has_attribute? product_prop or Spree::Variant.method_defined? product_prop
+          product_attributes[:master][product_prop.to_sym] = value
+        else 
+          p "!!!!!!!!!!!!!!! HEADER OH FUCK WHAT #{product_prop}"
         end
       end
       # GLOBAL MAP
       gm_values.each do |gm|
         next if gm["dest"].nil? or gm["key"].nil?
-        gm["dest"] = Time.now if gm["dest"] === 'now'
-        if gm["key"] === 'property'
-          product.set_property(gm["prop_key"], gm["dest"]) unless gm["prop_key"].nil? or gm["dest"].nil?
-        elsif self.variant_props.include? gm["key"].to_sym
-          product.master[gm["key"]] = gm["dest"]
-        else
-          product[gm["key"]] = gm["dest"]
+        gm["dest"] = Time.now if gm["dest"] == 'now'
+        if gm["key"] == 'property'
+          product_attributes[:properties] << [gm["prop_key"], gm["dest"]] unless gm["prop_key"].nil? or gm["dest"].nil?
+        elsif Spree::Product.has_attribute? gm["key"] or Spree::Product.method_defined? gm["key"]
+          if gm["key"] == 'taxon_ids'
+            product_attributes[gm["key"].to_sym] = gm["dest"].split(',').map(&:to_i)
+          else
+            product_attributes[gm["key"].to_sym] = gm["dest"]
+          end
+        elsif Spree::Variant.has_attribute? gm["key"] or Spree::Variant.method_defined? gm["key"]
+          product_attributes[:master][gm["key"].to_sym] = gm["dest"] 
+        else 
+          p "!!!!!!!!!!!!!!! GLOBAL OH FUCK WHAT #{gm["key"]}"
         end
       end
 
-      product.sheet_id = id
+      product_attributes[:sheet_id] = id
 
-      return product
-    rescue => err
-      return nil
-    end
+      return product_attributes
+    # rescue => err
+    #   return product_attributes
+    # end
   end
 
 end

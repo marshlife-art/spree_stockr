@@ -2,6 +2,10 @@ require 'spec_helper'
 
 RSpec.describe ImportProductsSheetJob, type: :job do
 
+  before(:all) do 
+    Spree::ShippingCategory.find_or_create_by!(name: 'Default')
+  end
+
   it "should process xlsx files" do
     file_xlsx = "spree_stockr_test_products.xlsx"
     puts "testing file: #{file_xlsx}"
@@ -10,7 +14,7 @@ RSpec.describe ImportProductsSheetJob, type: :job do
 
     @sheet.data["global_map"] = {
       "PCXZRXIB"=>{"key"=>"available_on", "dest"=>"now"},
-      "KBXNPMAP"=>{"key"=>"discontinue_on", "dest"=>"now"},
+      # "KBXNPMAP"=>{"key"=>"discontinue_on", "dest"=>"now"},
       "ACXYIBOD"=>{"key"=>"tax_category_id", "dest"=>"1"},
       "QOFLCEWW"=>{"key"=>"shipping_category_id", "dest"=>"1"},
       "NPGQEWUN"=>{"key"=>"promotionable", "dest"=>"true"},
@@ -19,7 +23,7 @@ RSpec.describe ImportProductsSheetJob, type: :job do
       "GOAVFBNA"=>{"key"=>"tag_list", "dest"=>"foo,bar,foobar,foobaz"},
       "JOQJHOTP"=>{"key"=>"property", "prop_key"=>"prop0 value", "dest"=>"prop0"},
       "WSIOGADG"=>{"key"=>"property", "prop_key"=>"prop1 value", "dest"=>"prop1"},
-      "ANJXHXHP"=>{"key"=>"taxons", "dest"=>"10,6"},
+      # "ANJXHXHP"=>{"key"=>"taxon_ids", "dest"=>"0, 1"},
       "VVTPXTJC"=>{"key"=>"stock_location_id", "dest"=>"1"}
     }
 
@@ -55,7 +59,7 @@ RSpec.describe ImportProductsSheetJob, type: :job do
 
     expect(@sheet.data["history"].last["success"]).to eq "processed_rows: 3, new_products: 3, missed_rows: 0."
 
-    expect(Spree::Product.where(sheet_id: @sheet.id).count).to be >= @sheet.rows
+    expect(Spree::Product.where(sheet_id: @sheet.id).count).to be >= @sheet.rows - 1
 
   end
   

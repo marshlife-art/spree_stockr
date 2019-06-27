@@ -38,23 +38,38 @@ class ImportProductsSheetJob < ApplicationJob
 
     xlsx.each_row_streaming(offset: sheet.header_row) do |row|
       # Array of Excelx::Cell objects
-      cells = row.collect{|c| c.value.to_s.strip}
-      begin
+      cells = row.collect{|c| c.value.to_s.strip rescue ''}
+      # begin
         variant = Spree::Variant.where(sku: cells[sku_index])
         new_product = variant.first.product unless variant.empty?
 
-        new_product ||= Spree::Product
-        .create do |product|
-          sheet.map_cells_to_product(cells, product)
+        new_product ||= Spree::Product.create
+        
+        mapped_product_attributes = sheet.map_cells_to_product(cells)
+        p "mapped_product_attributes: #{mapped_product_attributes}"
+        
+        master_attributes = mapped_product_attributes[:master]
+        properties = mapped_product_attributes[:properties]
+        p "master_attributes: #{master_attributes}"
+        p '# # # # # #'
+        p "properties: #{properties}"
+        p '# # # # # #'
+        p "attributes: #{mapped_product_attributes.except(:master, :properties)}"
+        p '# # # # # #'
+
+        new_product.update mapped_product_attributes.except(:master, :properties)
+        properties.each do |prop|
+          new_product.set_property(prop[0], prop[1])
         end
+        new_product.master.update master_attributes
         new_product.save!
         p "!!!!w00t!!!! CREATED NEW_PRODUCT #{new_product.inspect}"
         new_products += 1
-      rescue => err
-        p "CAUGHT ERR CREATING PRODUCT! #{err.inspect}"
-        # :/
-        missed_rows += 1
-      end
+      # rescue => err
+      #   p "CAUGHT ERR CREATING PRODUCT! #{err.inspect}"
+      #   # :/
+      #   missed_rows += 1
+      # end
       processed_rows += 1
     end
 
