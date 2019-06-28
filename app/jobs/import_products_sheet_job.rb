@@ -21,7 +21,7 @@ class ImportProductsSheetJob < ApplicationJob
   private
   def process_sheet(sheet)
     raise "sheet not found" if !sheet 
-    raise "sheet is currently processing" if sheet.processing? 
+    raise "sheet is already done" if sheet.done? 
     raise "no file" if !sheet.file.attached?
     raise "no mapping data" if sheet.data.blank? 
     raise "no header mapping" if sheet.data["header_map"].blank?
@@ -39,7 +39,7 @@ class ImportProductsSheetJob < ApplicationJob
     xlsx.each_row_streaming(offset: sheet.header_row) do |row|
       # Array of Excelx::Cell objects
       cells = row.collect{|c| c.value.to_s.strip rescue ''}
-      # begin
+      begin
         variant = Spree::Variant.where(sku: cells[sku_index])
         new_product = variant.first.product unless variant.empty?
 
@@ -65,11 +65,11 @@ class ImportProductsSheetJob < ApplicationJob
         new_product.save!
         p "!!!!w00t!!!! CREATED NEW_PRODUCT #{new_product.inspect}"
         new_products += 1
-      # rescue => err
-      #   p "CAUGHT ERR CREATING PRODUCT! #{err.inspect}"
-      #   # :/
-      #   missed_rows += 1
-      # end
+      rescue => err
+        p "CAUGHT ERR CREATING PRODUCT! #{err.inspect}"
+        # :/
+        missed_rows += 1
+      end
       processed_rows += 1
     end
 
