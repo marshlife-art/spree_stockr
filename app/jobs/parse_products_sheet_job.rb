@@ -57,7 +57,7 @@ class ParseProductsSheetJob < ApplicationJob
 
     else
       while(processed_rows < sheet.rows) do
-        p "while processed_rows(#{processed_rows}) < sheet.rows(#{sheet.rows})"
+        # p "while processed_rows(#{processed_rows}) < sheet.rows(#{sheet.rows})"
         json_data = {rows: []}
 
         # iterate thru rowz

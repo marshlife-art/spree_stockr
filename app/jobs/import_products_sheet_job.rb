@@ -46,16 +46,16 @@ class ImportProductsSheetJob < ApplicationJob
         new_product ||= Spree::Product.create
         
         mapped_product_attributes = sheet.map_cells_to_product(cells)
-        p "mapped_product_attributes: #{mapped_product_attributes}"
+        # p "mapped_product_attributes: #{mapped_product_attributes}"
         
         master_attributes = mapped_product_attributes[:master]
         properties = mapped_product_attributes[:properties]
-        p "master_attributes: #{master_attributes}"
-        p '# # # # # #'
-        p "properties: #{properties}"
-        p '# # # # # #'
-        p "attributes: #{mapped_product_attributes.except(:master, :properties)}"
-        p '# # # # # #'
+        # p "master_attributes: #{master_attributes}"
+        # p '# # # # # #'
+        # p "properties: #{properties}"
+        # p '# # # # # #'
+        # p "attributes: #{mapped_product_attributes.except(:master, :properties)}"
+        # p '# # # # # #'
 
         new_product.update mapped_product_attributes.except(:master, :properties)
         properties.each do |prop|
@@ -63,7 +63,7 @@ class ImportProductsSheetJob < ApplicationJob
         end
         new_product.master.update master_attributes
         new_product.save!
-        p "!!!!w00t!!!! CREATED NEW_PRODUCT #{new_product.inspect}"
+        p "[ImportProductsSheetJob] NEW_PRODUCT #{new_product.id}"
         new_products += 1
       rescue => err
         p "CAUGHT ERR CREATING PRODUCT! #{err.inspect}"

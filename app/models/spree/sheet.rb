@@ -7,7 +7,7 @@ class Spree::Sheet < ApplicationRecord
   DEFAULT_PRODUCT_PROP_VALUE = 'none'
 
   def self.product_props
-    [DEFAULT_PRODUCT_PROP_VALUE] + [:sku, :cost_currency, :cost_price, :price] + self.global_map_props.keys 
+    [DEFAULT_PRODUCT_PROP_VALUE] + [:sku, :cost_currency, :cost_price, :price, :taxon, :taxons] + self.global_map_props.keys 
   end
 
   def self.variant_props
@@ -136,24 +136,35 @@ class Spree::Sheet < ApplicationRecord
     
     # begin 
       # HEADER MAP
-      hm_values.each do |hm|
+      hm_values.each_with_index do |hm, cell_index|
         product_prop = hm["key"]
         next if product_prop == DEFAULT_PRODUCT_PROP_VALUE
-        cell_index = hm_values.find_index{|v| v["key"] == product_prop} rescue nil
+        # cell_index = hm_values.find_index{|v| v["key"] == product_prop} rescue nil
         next if cell_index.nil? or cells[cell_index].nil?
         value = cells[cell_index]
-        if product_prop == 'property' # or !hm["prop_key"].nil?
-          product_attributes[:properties] << [hm["prop_key"], value]
+        if product_prop == 'property'
+          product_attributes[:properties] << [hm["prop_key"], value] unless hm["prop_key"].nil? or value.nil?
         elsif Spree::Product.has_attribute? product_prop or Spree::Product.method_defined? product_prop
           if product_prop == 'taxon_ids'
-            product_attributes[product_prop.to_sym] = value.split(',').map(&:to_i)
+            product_attributes['taxon_ids'] ||= []
+            product_attributes[product_prop.to_sym] << value.split(',').map(&:to_i)
+          elsif product_prop == 'taxon'
+            product_attributes['taxon_ids'] ||= []
+            product_attributes['taxon_ids'] << Spree::Taxon.where(name: value).first_or_create!.id
+          elsif product_prop == 'taxons'
+            product_attributes['taxon_ids'] ||= []
+            product_attributes['taxon_ids'] << value.split(',').collect{|v| Spree::Taxon.where(name: v.strip).first_or_create!.id}
           else
-            product_attributes[product_prop.to_sym] = value
+            product_attributes[product_prop.to_sym] ||= ""
+            product_attributes[product_prop.to_sym] << " #{value.to_s}"
+            product_attributes[product_prop.to_sym].strip!
           end
         elsif Spree::Variant.has_attribute? product_prop or Spree::Variant.method_defined? product_prop
-          product_attributes[:master][product_prop.to_sym] = value
+          product_attributes[:master][product_prop.to_sym] ||= ""
+          product_attributes[:master][product_prop.to_sym] << " #{value.to_s}"
+          product_attributes[:master][product_prop.to_sym].stirp!
         else 
-          p "!!!!!!!!!!!!!!! HEADER OH FUCK WHAT #{product_prop}"
+          p "[Sheet] dunno about this header :/ #{product_prop}"
         end
       end
       # GLOBAL MAP
@@ -164,14 +175,19 @@ class Spree::Sheet < ApplicationRecord
           product_attributes[:properties] << [gm["prop_key"], gm["dest"]] unless gm["prop_key"].nil? or gm["dest"].nil?
         elsif Spree::Product.has_attribute? gm["key"] or Spree::Product.method_defined? gm["key"]
           if gm["key"] == 'taxon_ids'
-            product_attributes[gm["key"].to_sym] = gm["dest"].split(',').map(&:to_i)
+            product_attributes[gm["key"].to_sym] ||= []
+            product_attributes[gm["key"].to_sym] << gm["dest"].split(',').map(&:to_i)
           else
-            product_attributes[gm["key"].to_sym] = gm["dest"]
+            product_attributes[gm["key"].to_sym] ||= ""
+            product_attributes[gm["key"].to_sym] << " #{gm["dest"].to_s}"
+            product_attributes[gm["key"].to_sym].strip!
           end
         elsif Spree::Variant.has_attribute? gm["key"] or Spree::Variant.method_defined? gm["key"]
-          product_attributes[:master][gm["key"].to_sym] = gm["dest"] 
+          product_attributes[:master][gm["key"].to_sym] ||= ""
+          product_attributes[:master][gm["key"].to_sym] << " #{gm["dest"]}"
+          product_attributes[:master][gm["key"].to_sym].strip!
         else 
-          p "!!!!!!!!!!!!!!! GLOBAL OH FUCK WHAT #{gm["key"]}"
+          p "[Sheet] dunno about this global map ref :/  #{gm["key"]}"
         end
       end
 
