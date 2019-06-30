@@ -77,12 +77,13 @@ class Spree::Sheet < ApplicationRecord
         require_choice: false,
         multiple: true,
         data: Spree::Taxon.all.limit(250).map{|i| {id: i.id, text: i.name}}
-      },
-      stock_location_id: { 
-        require_choice: true,
-        multiple: false,
-        data: Spree::StockLocation.all.map{|i| {id: i.id, text: i.name}}
       }
+      # TODO: better stock handling...
+      # stock_location_id: { 
+      #   require_choice: true,
+      #   multiple: false,
+      #   data: Spree::StockLocation.all.map{|i| {id: i.id, text: i.name}}
+      # }
     }
   end
 
@@ -132,7 +133,6 @@ class Spree::Sheet < ApplicationRecord
 
     hm_values = header_map_values
     return if hm_values.nil?
-    gm_values = global_map_values
     
     # begin 
       # HEADER MAP
@@ -168,6 +168,7 @@ class Spree::Sheet < ApplicationRecord
         end
       end
       # GLOBAL MAP
+      gm_values = global_map_values
       gm_values.each do |gm|
         next if gm["dest"].nil? or gm["key"].nil?
         gm["dest"] = Time.now if gm["dest"] == 'now'

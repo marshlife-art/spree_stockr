@@ -1,0 +1,23 @@
+<div class="row">
+  <div class="col-md-11 col-md-offset-1">
+    <label for="header_map_#{idx}"><%= idx %><%= ": #{sheet.data["headers"][idx]}" rescue '' %></label>
+    <%= select_tag "header_map[#{idx}][key]", options_for_select(Spree::Sheet.header_map_props, (sheet.data['header_map'][idx.to_s]['key'] rescue nil) ), class: 'form-control', id: "header_map_#{idx}" %>
+
+    <% prop_key = sheet.data['header_map'][idx.to_s]['prop_key'] rescue nil %>
+    <input type="text" id="header_map_prop_<%= idx %>" name="header_map[<%= idx %>][prop_key]" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="<%= "display:none" if prop_key.blank? %>" value="<%= prop_key %>" <%= "disabled" unless prop_key %> />
+
+    <script>
+    // #TODO: lolol, use class selectors and define this once ffs... 
+    $(function() {
+      $('#header_map_<%= idx %>').on('change', function(e) {
+        console.log('header_map idx on change!')
+        if(this.value === 'property') {
+          $('#header_map_prop_<%= idx %>').prop('disabled', false).val('').prop('style','')
+        }else{
+          $('#header_map_prop_<%= idx %>').prop('disabled', true).val('').prop('style','display:none;')
+        }
+      })
+    })
+    </script>
+  </div>
+</div>
