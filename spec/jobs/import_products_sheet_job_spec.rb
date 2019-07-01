@@ -61,6 +61,22 @@ RSpec.describe ImportProductsSheetJob, type: :job do
 
     expect(Spree::Product.where(sheet_id: @sheet.id).count).to be >= @sheet.rows - 1
 
+    products = []
+    products << "1234,foo name,foo description,some tag,6.66,3.33,gf,beep".split(',')
+    products << "9876,another foo,lorem ipsum foo,some tag,5.55,2.22,,beep".split(',')
+    products << "5432,yet another,zomg what is this,a tag,4.44,1.11,zork".split(',')
+
+    products.each do |prod|
+      product = Spree::Product.find_by(name: prod[1]) #TODO: use find_by(sku: '...') after sku import is fixed...
+      expect(product.sku).to eq(prod[0]) # TODO: fix getting 1234.0 not 1234
+      expect(product.description).to eq(prod[2])
+      expect(product.tag_list).to include(prod[3]) # TODO: fix getting "some tag foo"
+      expect(product.price.to_s).to eq(prod[4])
+      expect(product.cost_price.to_s).to eq(prod[5])
+      expect(product.property('foobar')).to eq(prod[6]) # TODO: fix getting ""
+      expect(product.property('foobaz')).to eq(prod[7]) # TODO: fix getting nil
+    end
+
   end
   
 end
