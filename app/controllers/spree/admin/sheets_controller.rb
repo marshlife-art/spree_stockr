@@ -74,8 +74,6 @@ module Spree
           @sheet.data['global_map'] = params[:global_map]
           @sheet.save
         end
-        flash[:success] = "Updated global mapping"
-        redirect_to admin_edit_sheet_path(@sheet.id)
       end
 
       def sheet_status

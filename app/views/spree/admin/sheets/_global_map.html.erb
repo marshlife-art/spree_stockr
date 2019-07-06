@@ -1,81 +1,20 @@
-<%# TODO: parse @item local variable %>
-<% randID = (0...8).map { (65 + rand(26)).chr }.join %>
-<div class="row flex-middle">
-  <div class="col-xs-6 col-sm-5">
-    <label for="src<%= randID %>">Key</label>
-    <%= select_tag "global_map[#{randID}][key]", options_for_select(Spree::Sheet.product_props), class: 'form-control', id: "src#{randID}" %>
-
-    <input type="text" id="prop<%= randID %>" name="global_map[<%= randID %>][prop_key]" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="display:none" disabled />
-  </div>
-  <div class="col-xs-1 hidden-xs global_map_arrow">
-    <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-  </div>
-  <div class="col-xs-5">
-    <label for="dest<%= randID %>">Value</label>
-    <input type="text" id="dest<%= randID %>" name="global_map[<%= randID %>][dest]" autocomplete="new-password" class="form-control" disabled />
-
-  </div>
-
-  <div class="col-xs-1">
-    <button type="button" class="btn btn-danger btn-sm remove" id="remove_global_map_<%= randID %>">
-      &times;
-    </button>
-  </div>
-
-</div>
-<script>
-$(function() {
-
-  $('#src<%= randID %>').on('change', function(e) {
-    // console.log(this.value, this.selectedIndex)
-    $('#dest<%= randID %>').prop('disabled', false).val('')
-    $('#dest<%= randID %>').select2('destroy')
-
-    if(this.selectedIndex === 0) {
-      $('#dest<%= randID %>').prop('disabled', true)
-      $('#dest<%= randID %>').addClass('form-control')
-    } else if(this.value === 'property') {
-      $('#prop<%= randID %>').prop('disabled', false).val('').prop('style','')
-      $('#dest<%= randID %>').addClass('form-control')
-    } else {
-      $('#prop<%= randID %>').prop('disabled', true).val('').prop('style','display:none;')
-      var global_map_prop = global_map_props[this.value]
-      // console.log('global_map_prop: ', global_map_prop)
-      if( global_map_props && global_map_prop && global_map_prop.data ){
-        $('#dest<%= randID %>').removeClass('form-control')
-        
-        var select2_options = {
-          tags: true,
-          width: '100%',
-          allowClear: true,
-          selectOnBlur: true,
-          multiple: global_map_prop.multiple,
-          maximumSelectionSize: global_map_prop.multiple ? 999 : 1,
-          placeholder: 'Click here and start typing.',
-          data: global_map_prop.data
-        }
-
-        if(global_map_prop.require_choice !== true) {
-          // allow for anything typed in to become the tagg'd value (y'know, like a <input type="text"/> lolol)
-          select2_options['createSearchChoice'] = function(term, data) {
-            if( $(data).filter( function() {
-              return this.text.localeCompare(term)===0
-            }).length===0 ) {
-              return { id:term, text:term }
-            }
-          }
-        }
-
-        $('#dest<%= randID %>').select2(select2_options)
-      }
-    }
-
-  })
-
-  $('#remove_global_map_<%= randID %>').click(function(){
-    $(this).closest('.row').remove()
-  })
-
+<%= form_for sheet, as: :spree_sheet, url: admin_sheet_global_map_patch_path, remote: true do |f| %>
   
-})
-</script>
+  <div id="global_map_props">
+    <% if sheet.data and sheet.data['global_map'] and !sheet.data['global_map'].empty? %>
+      <% sheet.data['global_map'].each do |item| %>
+        <%= render partial: 'global_map_item', locals: {idx: item[0], item: item[1]} %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= link_to admin_sheet_global_map_item_path(sheet.id), remote: true, method: :get, class: 'btn btn-sm btn-default' do %>
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Global Property
+    <% end %>
+  </div>
+
+  <div class="form-group submit-group">
+    <%= f.submit 'Save Global Mapping', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_global_map' %>
+  </div>
+<% end %>

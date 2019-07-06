@@ -12,7 +12,7 @@ Spree::Core::Engine.add_routes do
       get '/sheets/import_products/:id', to: 'sheets#import_products', as: :import_products_sheet
       get '/sheets/get_parsed_json_files/:id', to: 'sheets#get_parsed_json_files', as: :get_parsed_json_files
       
-      get '/sheets/global_map/:id', to: 'sheets#global_map', as: :sheet_global_map
+      get '/sheets/global_map_item/:id', to: 'sheets#global_map_item', as: :sheet_global_map_item
       patch '/sheets/header_map/:id', to: 'sheets#update_header_map', as: :sheet_header_map_patch
       patch '/sheets/global_map/:id', to: 'sheets#update_global_map', as: :sheet_global_map_patch
       get '/sheets/header_map_item/:id', to: 'sheets#header_map_item', as: :sheet_header_map_item

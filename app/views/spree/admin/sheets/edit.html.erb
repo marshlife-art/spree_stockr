@@ -115,45 +115,9 @@
 
     <br/>
 
-    <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_global_map_patch_path, remote: true do |f| %>
-      
-      <div id="global_map_props">
-        <% if @sheet.data and @sheet.data['global_map'] and !@sheet.data['global_map'].empty? %>
-          <% @sheet.data['global_map'].each do |item| %>
-
-            <%# TODO: pass @item local variable %>
-            <%# render 'global_map' %>
-            <div class="row">
-              <div class="col-xs-6 col-sm-5">
-                <%= item[1]["key"] rescue '' %>
-                <%= "(property: #{item[1]["prop_key"]})" if item[1]["prop_key"] %>
-                
-              </div>
-              <div class="col-xs-1 hidden-xs">
-                <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-              </div>
-              <div class="col-xs-6">
-                <%= item[1]["dest"] rescue '' %>
-              </div>
-            </div>
-
-          <% end %>
-        <% end %>
-        
-        <%= render 'global_map' %>
-
-      </div>
-
-      <div class="form-group">
-        <%= link_to admin_sheet_global_map_path(@sheet.id), remote: true, method: :get, class: 'btn btn-sm btn-default' do %>
-          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Global Property
-        <% end %>
-      </div>
-
-      <div class="form-group submit-group">
-        <%= f.submit 'Save Global Mapping', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_global_map' %>
-      </div>
-    <% end %>
+    <div id="global_map_container">
+      <%= render partial: 'global_map', locals: {sheet: @sheet} %>
+    </div>
     
   </div>
 

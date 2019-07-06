@@ -1,0 +1,84 @@
+<% 
+idx ||= (0...8).map { (65 + rand(26)).chr }.join 
+item ||= {} 
+%>
+
+<div class="row flex-middle">
+  <div class="col-xs-6 col-sm-5">
+    <label for="src<%= idx %>">Key</label>
+    <%= select_tag "global_map[#{idx}][key]", options_for_select(Spree::Sheet.product_props, item["key"]), class: 'form-control', id: "src#{idx}" %>
+
+    <input type="text" id="prop<%= idx %>" name="global_map[<%= idx %>][prop_key]" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="display:none" value="<%= item["prop_key"] %>" <%= "disabled" if item["prop_key"].nil? %> />
+  </div>
+  <div class="col-xs-1 hidden-xs global_map_arrow">
+    <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+  </div>
+  <div class="col-xs-5">
+    <label for="dest<%= idx %>">Value</label>
+    <input type="text" id="dest<%= idx %>" name="global_map[<%= idx %>][dest]" autocomplete="new-password" class="form-control" value="<%= item["dest"] %>" <%= "disabled" if item["dest"].nil? %> />
+
+  </div>
+
+  <div class="col-xs-1">
+    <button type="button" class="btn btn-danger btn-sm remove" id="remove_global_map_<%= idx %>">
+      &times;
+    </button>
+  </div>
+
+</div>
+<script>
+$(function() {
+
+  $('#src<%= idx %>').on('change', function(e) {
+    // console.log(this.value, this.selectedIndex)
+    $('#dest<%= idx %>').prop('disabled', false).val('')
+    $('#dest<%= idx %>').select2('destroy')
+
+    if(this.selectedIndex === 0) {
+      $('#dest<%= idx %>').prop('disabled', true)
+      $('#dest<%= idx %>').addClass('form-control')
+    } else if(this.value === 'property') {
+      $('#prop<%= idx %>').prop('disabled', false).val('').prop('style','')
+      $('#dest<%= idx %>').addClass('form-control')
+    } else {
+      $('#prop<%= idx %>').prop('disabled', true).val('').prop('style','display:none;')
+      var global_map_prop = global_map_props[this.value]
+      // console.log('global_map_prop: ', global_map_prop)
+      if( global_map_props && global_map_prop && global_map_prop.data ){
+        $('#dest<%= idx %>').removeClass('form-control')
+        
+        var select2_options = {
+          tags: true,
+          width: '100%',
+          allowClear: true,
+          selectOnBlur: true,
+          multiple: global_map_prop.multiple,
+          maximumSelectionSize: global_map_prop.multiple ? 999 : 1,
+          placeholder: 'Click here and start typing.',
+          data: global_map_prop.data
+        }
+
+        if(global_map_prop.require_choice !== true) {
+          // allow for anything typed in to become the tagg'd value (y'know, like a <input type="text"/> lolol)
+          select2_options['createSearchChoice'] = function(term, data) {
+            if( $(data).filter( function() {
+              return this.text.localeCompare(term)===0
+            }).length===0 ) {
+              return { id:term, text:term }
+            }
+          }
+        }
+
+        $('#dest<%= idx %>').select2(select2_options)
+      }
+    }
+
+  })
+
+  $('#remove_global_map_<%= idx %>').click(function(){
+    $(this).closest('.row').remove()
+  })
+
+  
+})
+</script>
