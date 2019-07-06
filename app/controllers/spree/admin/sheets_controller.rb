@@ -65,8 +65,6 @@ module Spree
         
         @sheet.data['header_map'] = params["header_map"]
         @sheet.save
-        flash[:success] = "Updated header mapping"
-        redirect_to admin_edit_sheet_path(@sheet.id)
       end
 
       def update_global_map

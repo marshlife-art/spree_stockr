@@ -15,6 +15,7 @@ Spree::Core::Engine.add_routes do
       get '/sheets/global_map/:id', to: 'sheets#global_map', as: :sheet_global_map
       patch '/sheets/header_map/:id', to: 'sheets#update_header_map', as: :sheet_header_map_patch
       patch '/sheets/global_map/:id', to: 'sheets#update_global_map', as: :sheet_global_map_patch
+      get '/sheets/header_map_item/:id', to: 'sheets#header_map_item', as: :sheet_header_map_item
 
       patch '/sheets/update/:id', to: 'sheets#update', as: :update_sheet
       delete '/sheets/delete/:id', to: 'sheets#delete', as: :delete_sheet

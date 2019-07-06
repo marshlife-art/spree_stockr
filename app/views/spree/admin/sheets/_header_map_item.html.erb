@@ -1,0 +1,90 @@
+<% 
+idx ||= (0...8).map{ (65 + rand(26)).chr }.join 
+header ||= {} 
+-%>
+<div class="row flex-middle">
+  <div class="col-xs-6 col-md-5">
+    <label for="header_map_keys<%= idx %>">Sheet Header(s)</label>
+    <input type="text" id="header_map_keys<%= idx %>" name="header_map[<%= idx %>][keys]" value="<%= header["keys"] rescue nil %>"/>
+  </div>
+
+  <div class="col-xs-1 hidden-xs">
+    <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+  </div>
+
+  <div class="col-xs-4 col-md-5">
+    <label for="header_map_#{idx}">Product Attribute</label>
+    <%= select_tag "header_map[#{idx}][dest]", options_for_select(Spree::Sheet.header_map_props, (header['dest'] rescue nil) ), class: 'form-control', id: "header_map_#{idx}" %>
+
+    <% prop_key = header['prop_key'] rescue nil %>
+    <input type="text" id="header_map_prop_<%= idx %>" name="header_map[<%= idx %>][prop_key]" class="headerMapSelect" placeholder="Property name" style="<%= "display:none" if prop_key.blank? %>" value="<%= prop_key %>" <%= "disabled" unless prop_key %> />
+
+  </div>
+  <div class="col-xs-1 col-md-1">
+    <button type="button" class="btn btn-danger btn-sm remove" id="remove_row_<%= idx %>">
+      &times;
+    </button>
+  </div>
+</div>
+
+<script>
+// #TODO: lolol, use class selectors and define this once ffs... 
+$(function() {
+  $('#header_map_<%= idx %>').on('change', function(e) {
+    console.log('header_map idx on change!')
+    if(this.value === 'property') {
+      $('#header_map_prop_<%= idx %>').prop('disabled', false).val('').prop('style','')
+    }else{
+      $('#header_map_prop_<%= idx %>').prop('disabled', true).val('').prop('style','display:none;')
+    }
+  })
+
+  $('#header_map_keys<%= idx %>').select2({
+    tags: true,
+    width: '100%',
+    allowClear: true,
+    selectOnBlur: true,
+    multiple: true,
+    // maximumSelectionSize: global_map_prop.multiple ? 999 : 1,
+    placeholder: 'Click here and start typing.',
+    data: headers_for_select,
+    createSearchChoice: function(term, data) {
+      if( $(data).filter( function() {
+        return this.text.localeCompare(term)===0
+      }).length===0 ) {
+        return { id:term, text:term }
+      }
+    }
+    // ,
+    // initSelection : function (element, callback) {
+    //     var data = [];
+    //     $(element.val().split(",")).each(function () {
+    //         data.push({id: this, text: this});
+    //     });
+    //     callback(data);
+    // }
+  })
+
+  $('#remove_row_<%= idx %>').click(function(){
+    $(this).closest('.row').remove()
+  })
+})
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

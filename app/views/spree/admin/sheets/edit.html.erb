@@ -11,6 +11,14 @@
 .submit-group {
   margin-top: 2em;
 }
+.flex-middle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.remove {
+  margin-top: 18px;
+}
 </style>
 
 <% content_for :page_title do %>
@@ -55,7 +63,7 @@
 
 <% else %>
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-6">
     <dl class="sheet">
       <dt>Status</dt>
       <dd><span class="label <%= @sheet.status_class %>"><%= @sheet.status %></span></dd>
@@ -68,18 +76,13 @@
       <dd><%= number_with_delimiter(@sheet.rows, :delimiter => ',') %></dd>
       <% end %>
     </dl>
-
+  </div>
+  <div class="col-md-6">
     <%= form_for @sheet, as: :spree_sheet, url: admin_update_sheet_path do |f| %>
       <div class="form-group">
         <%= f.label :header_row do %>
           Header Row Number
           <%= f.number_field :header_row, class: 'form-control', tabindex: 1, placeholder: 'Header Row Number' %>
-        <% end %>
-      </div>
-      <div class="form-group">
-        <%= f.label :group_column do %>
-          Group Column Number
-          <%= f.number_field :group_column, class: 'form-control', tabindex: 1, placeholder: 'Group Column Number' %>
         <% end %>
       </div>
       
@@ -88,19 +91,6 @@
       </div>
     <% end %>
 
-  </div>
-
-  <div class="col-md-8">
-    <dl class="sheet">
-      <% if @sheet.parsed_json_files.attached? %>
-      <dt>Sheet Data:</dt>
-        <% @sheet.parsed_json_files.each_with_index do |file, idx| %>
-          <% item_count = @sheet.data["parsed_json_files"][file.filename.to_s.sub('_rows.json','')] rescue nil %>
-          <dd><%= link_to "#{file.filename.to_s.sub('_rows.json','')} (#{item_count})", 
-    Rails.application.routes.url_helpers.rails_blob_path(file) %>  </dd>
-        <% end %>
-      <% end %>
-    </dl>
   </div>
 
 </div>
@@ -187,17 +177,9 @@
       </ul>
 
       <br/>
-
-      <%= form_for @sheet, as: :spree_sheet, url: admin_sheet_header_map_patch_path, remote: true do |f| %>
-        <% @sheet.data['headers'].each_with_index do |header, idx| %>
-          <%= render partial: 'header_map', locals: {sheet: @sheet, header: header, idx: idx} %>
-        <% end %>
-
-        <div class="form-group">
-          <%= f.submit 'Save Header Mapping', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
-        </div>
-        
-      <% end %>
+      <div id="header_map_container">
+        <%= render partial: 'header_map', locals: {sheet: @sheet} %>
+      </div>
     <% end %>
   </div>
 </div>
@@ -221,7 +203,8 @@
 
 <script>
 var global_map_props = <%= Spree::Sheet.global_map_props.to_json.html_safe %>;
-
+var headers = <%= @sheet.data["headers"].to_json.html_safe %>;
+var headers_for_select = <%= @sheet.data["headers"].each_with_index.map{|v,i| {id: i, text: v}}.to_json.html_safe rescue 'undefined' %>;
 // (function() {
 //   // var sheet_data = <%= @sheet.data.to_json.html_safe %>
 //   // console.log(sheet_data)

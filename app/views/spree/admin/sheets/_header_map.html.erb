@@ -1,23 +1,19 @@
-<div class="row">
-  <div class="col-md-11 col-md-offset-1">
-    <label for="header_map_#{idx}"><%= idx %><%= ": #{sheet.data["headers"][idx]}" rescue '' %></label>
-    <%= select_tag "header_map[#{idx}][key]", options_for_select(Spree::Sheet.header_map_props, (sheet.data['header_map'][idx.to_s]['key'] rescue nil) ), class: 'form-control', id: "header_map_#{idx}" %>
-
-    <% prop_key = sheet.data['header_map'][idx.to_s]['prop_key'] rescue nil %>
-    <input type="text" id="header_map_prop_<%= idx %>" name="header_map[<%= idx %>][prop_key]" class="globalMapSelect form-control" placeholder="Property name" autocomplete="new-password" style="<%= "display:none" if prop_key.blank? %>" value="<%= prop_key %>" <%= "disabled" unless prop_key %> />
-
-    <script>
-    // #TODO: lolol, use class selectors and define this once ffs... 
-    $(function() {
-      $('#header_map_<%= idx %>').on('change', function(e) {
-        console.log('header_map idx on change!')
-        if(this.value === 'property') {
-          $('#header_map_prop_<%= idx %>').prop('disabled', false).val('').prop('style','')
-        }else{
-          $('#header_map_prop_<%= idx %>').prop('disabled', true).val('').prop('style','display:none;')
-        }
-      })
-    })
-    </script>
+<%= form_for sheet, as: :spree_sheet, url: admin_sheet_header_map_patch_path, remote: true, :html => {id: 'header_map'} do |f| %>
+  
+  <div id="header_map_items">
+    <% sheet.data["header_map"].each_with_index do |header, idx| %>
+      <%= render partial: 'header_map_item', locals: {sheet: sheet, header: header[1], idx: idx} %>
+    <% end unless sheet.data["header_map"].nil? %>
   </div>
-</div>
+
+  <div class="form-group">
+    <%= link_to admin_sheet_header_map_item_path(@sheet.id), remote: true, method: :get, class: 'btn btn-sm btn-default' do %>
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Header Map Item
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.submit 'Save Header Mapping', class: 'btn btn-lg btn-success btn-block', tabindex: 3, disabled: false, id: 'submit_header_map' %>
+  </div>
+  
+<% end %>
