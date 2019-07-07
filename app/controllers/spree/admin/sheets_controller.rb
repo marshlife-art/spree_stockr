@@ -78,7 +78,7 @@ module Spree
 
       def sheet_status
         @sheet = Spree::Sheet.find_by_id(params[:id])
-        render json: {status: @sheet.status}
+        render json: {status: @sheet.status, progress: @sheet.data["progress"]}
       end
       
       private

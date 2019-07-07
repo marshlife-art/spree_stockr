@@ -121,12 +121,7 @@ class Spree::Sheet < ApplicationRecord
     data["global_map"].collect{|k| k[1] } rescue []
   end
 
-  def sku_index
-    header_map_values.find_index{|v| v["key"] == "sku"} rescue nil
-  end
-
-  def map_cells_to_product(cells)
-    
+  def map_cells_to_product(cells, taxon_cache={})
     product_attributes = {}
     product_attributes[:master] = {}
     product_attributes[:properties] = []
@@ -151,11 +146,16 @@ class Spree::Sheet < ApplicationRecord
           product_attributes[:properties] << [hm["prop_key"], value] unless hm["prop_key"].blank? or value.blank?
         elsif Spree::Product.has_attribute? product_prop or Spree::Product.method_defined? product_prop
           if product_prop == 'taxon_ids'
-            product_attributes['taxon_ids'] ||= []
-            product_attributes['taxon_ids'] << value.split(',').map(&:to_i)
+            product_attributes[:taxon_ids] ||= []
+            product_attributes[:taxon_ids] += value.split(',').map(&:to_i)
           elsif product_prop == 'taxons'
-            product_attributes['taxon_ids'] ||= []
-            product_attributes['taxon_ids'] << value.split(',').collect{|v| Spree::Taxon.where(name: v.strip).first_or_create!.id}
+            product_attributes[:taxon_ids] ||= []
+            product_attributes[:taxon_ids] += value.split(',').collect do |v|
+              if taxon_cache[v.strip].nil?
+                taxon_cache[v.strip] = Spree::Taxon.where(name: v.strip).first_or_create.id
+              end
+              taxon_cache[v.strip]
+            end
           else
             product_attributes[product_prop.to_sym] ||= ""
             product_attributes[product_prop.to_sym] << " #{value.to_s}"
@@ -179,7 +179,7 @@ class Spree::Sheet < ApplicationRecord
         elsif Spree::Product.has_attribute? gm["key"] or Spree::Product.method_defined? gm["key"]
           if gm["key"] == 'taxon_ids'
             product_attributes[gm["key"].to_sym] ||= []
-            product_attributes[gm["key"].to_sym] << gm["dest"].split(',').map(&:to_i)
+            product_attributes[gm["key"].to_sym] += gm["dest"].split(',').map(&:to_i)
           else
             product_attributes[gm["key"].to_sym] ||= ""
             product_attributes[gm["key"].to_sym] << " #{gm["dest"].to_s}"

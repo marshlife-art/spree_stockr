@@ -12,6 +12,17 @@ RSpec.describe ImportProductsSheetJob, type: :job do
     @sheet = Spree::Sheet.new(name: 'test', header_row: 1)
     @sheet.file.attach(io: File.open("#{RSPEC_ROOT}/fixtures/files/#{file_xlsx}"), filename:file_xlsx)
 
+#     "header_map"=>
+#   {"0"=>{"keys"=>"1", "dest"=>"sku"},
+#    "1"=>{"keys"=>"3,5", "dest"=>"name"},
+#    "2"=>{"keys"=>"7", "dest"=>"property", "prop_key"=>"Size"},
+#    "3"=>{"keys"=>"10", "dest"=>"cost_price"},
+#    "4"=>{"keys"=>"45", "dest"=>"property", "prop_key"=>"n"}},
+#  "global_map"=>
+#   {"RKVATLTM"=>{"key"=>"available_on", "dest"=>"now"},
+#    "OLYOPRDU"=>{"key"=>"taxon", "dest"=>"foobar"}}}
+
+
     @sheet.data["global_map"] = {
       "PCXZRXIB"=>{"key"=>"available_on", "dest"=>"now"},
       # "KBXNPMAP"=>{"key"=>"discontinue_on", "dest"=>"now"},

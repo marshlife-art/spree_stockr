@@ -46,28 +46,32 @@
 
 <% if @sheet.processing? %>
 <div class="progress">
-  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" id="sheet_progress">
     <span class="sr-only">Processing</span>
   </div>
 </div>
 
-<h3>Processing...</h3>
+<h3>Processing... <small id="sheet_progress_percent"></small></h3>
 
 <script>
 (function() {
   var statusCheckInterval = window.setInterval(function(){
     fetch('<%= admin_sheet_status_url %>')
-    .then(function(response) {
-      return response.json()
+    .then(function(r) {
+      return r.json()
     })
-    .then(function(sheetStatus) {
-      console.log(JSON.stringify(sheetStatus))
-      if(sheetStatus.status !== 'processing'){
+    .then(function(response) {
+      console.log(JSON.stringify(response))
+      if(response.status !== 'processing'){
         window.clearInterval(statusCheckInterval)
         window.location.reload(false)
       }
+      var progress = parseFloat(response.progress) * 100 || 0
+
+      $("#sheet_progress").prop('style','width: '+progress+'%').prop('aria-valuenow', progress)
+      $("#sheet_progress_percent").html('('+progress+'%)')
     })
-  }, 10000)
+  }, 60000)
 })()
 </script>
 
