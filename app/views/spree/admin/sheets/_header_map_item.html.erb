@@ -17,8 +17,10 @@ header ||= {}
     <%= select_tag "header_map[#{idx}][dest]", options_for_select(Spree::Sheet.header_map_props, (header['dest'] rescue nil) ), class: 'form-control', id: "header_map_#{idx}" %>
 
     <% prop_key = header['prop_key'] rescue nil %>
-    <input type="text" id="header_map_prop_<%= idx %>" name="header_map[<%= idx %>][prop_key]" class="headerMapSelect" placeholder="Property name" style="<%= "display:none" if prop_key.blank? %>" value="<%= prop_key %>" <%= "disabled" unless prop_key %> />
+    <input type="text" id="header_map_prop_<%= idx %>" name="header_map[<%= idx %>][prop_key]" class="headerMapSelect form-control" placeholder="Property name" style="<%= "display:none" if prop_key.blank? %>" value="<%= prop_key %>" <%= "disabled" unless prop_key %> />
 
+    <% price_multiplier = header['price_multiplier'] rescue nil %>
+    <input type="number" step="0.01" id="header_map_price_multiplier_<%= idx %>" name="header_map[<%= idx %>][price_multiplier]" class="headerMapSelect form-control" placeholder="Price Multiplier" style="<%= "display:none" if price_multiplier.blank? %>" value="<%= price_multiplier %>" <%= "disabled" unless price_multiplier %> />
   </div>
   <div class="col-xs-1 col-md-1">
     <button type="button" class="btn btn-danger btn-sm remove" id="remove_row_<%= idx %>">
@@ -28,14 +30,19 @@ header ||= {}
 </div>
 
 <script>
-// #TODO: lolol, use class selectors and define this once ffs... 
+// #TODO: lolol, ffs; use class selectors and define this once 
 $(function() {
   $('#header_map_<%= idx %>').on('change', function(e) {
     console.log('header_map idx on change!')
     if(this.value === 'property') {
+      $('#header_map_price_multiplier_<%= idx %>').prop('disabled', true).val('').prop('style','display:none;')
       $('#header_map_prop_<%= idx %>').prop('disabled', false).val('').prop('style','')
-    }else{
+    } else if(/price/.test(this.value)) {
       $('#header_map_prop_<%= idx %>').prop('disabled', true).val('').prop('style','display:none;')
+      $('#header_map_price_multiplier_<%= idx %>').prop('disabled', false).val('').prop('style','')
+    } else{
+      $('#header_map_prop_<%= idx %>').prop('disabled', true).val('').prop('style','display:none;')
+      $('#header_map_price_multiplier_<%= idx %>').prop('disabled', true).val('').prop('style','display:none;')
     }
   })
 

@@ -1,1 +1,1 @@
-$("#global_map_container").html("<%= escape_javascript(render 'global_map') %>");
+$("#global_map_container").html("<%= escape_javascript(render partial: 'global_map', locals: {sheet: @sheet}) %>");

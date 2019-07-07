@@ -7,7 +7,7 @@ class Spree::Sheet < ApplicationRecord
   DEFAULT_PRODUCT_PROP_VALUE = 'none'
 
   def self.product_props
-    [DEFAULT_PRODUCT_PROP_VALUE] + [:sku, :cost_currency, :cost_price, :price, :taxon, :taxons] + self.global_map_props.keys 
+    [DEFAULT_PRODUCT_PROP_VALUE] + [:sku, :cost_currency, :cost_price, :price, :taxons] + self.global_map_props.keys 
   end
 
   def self.variant_props
@@ -136,21 +136,23 @@ class Spree::Sheet < ApplicationRecord
     
     # begin 
       # HEADER MAP
-      hm_values.each_with_index do |hm, cell_index|
-        product_prop = hm["key"]
+      hm_values.each do |hm|
+        product_prop = hm["dest"]
         next if product_prop == DEFAULT_PRODUCT_PROP_VALUE
         # cell_index = hm_values.find_index{|v| v["key"] == product_prop} rescue nil
-        next if cell_index.nil? or cells[cell_index].nil?
-        value = cells[cell_index]
+        # next if cell_index.nil? or cells[cell_index].nil?
+        value = hm["keys"].split(",").map(&:to_i).collect{|i| cells[i].titleize}.join(' ') rescue ''
+
+        unless hm["price_multiplier"].nil? or hm["price_multiplier"].to_f == 0 or value.to_f.to_s != value
+          value = '%.2f' % (value.to_f * hm["price_multiplier"].to_f + value.to_f)
+        end
+
         if product_prop == 'property'
-          product_attributes[:properties] << [hm["prop_key"], value] unless hm["prop_key"].nil? or value.nil?
+          product_attributes[:properties] << [hm["prop_key"], value] unless hm["prop_key"].blank? or value.blank?
         elsif Spree::Product.has_attribute? product_prop or Spree::Product.method_defined? product_prop
           if product_prop == 'taxon_ids'
             product_attributes['taxon_ids'] ||= []
-            product_attributes[product_prop.to_sym] << value.split(',').map(&:to_i)
-          elsif product_prop == 'taxon'
-            product_attributes['taxon_ids'] ||= []
-            product_attributes['taxon_ids'] << Spree::Taxon.where(name: value).first_or_create!.id
+            product_attributes['taxon_ids'] << value.split(',').map(&:to_i)
           elsif product_prop == 'taxons'
             product_attributes['taxon_ids'] ||= []
             product_attributes['taxon_ids'] << value.split(',').collect{|v| Spree::Taxon.where(name: v.strip).first_or_create!.id}
