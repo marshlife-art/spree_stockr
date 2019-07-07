@@ -15,9 +15,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: background-color 0.2s linear 0.2s;
 }
-.remove {
+.row.flex-middle:hover {
+  background-color: #f7f7f7;
+}
+.btn-danger.remove {
   margin-top: 18px;
+  color: #f43f3b;
+  background-color: transparent;
+}
+.btn-danger.remove:hover {
+  background-color: #f43f3b;
+  color: white;
 }
 </style>
 
