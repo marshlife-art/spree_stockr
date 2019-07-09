@@ -60,7 +60,7 @@ var intervalThrottle = 1
 
 ;(function checkStatus(){
   window.setTimeout(function(){
-    if(intervalThrottle < 20){
+    if(intervalThrottle < 60){
       intervalThrottle += 1
     }
     fetch('<%= admin_sheet_status_url %>')
