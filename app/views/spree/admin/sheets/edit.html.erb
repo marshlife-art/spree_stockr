@@ -70,7 +70,6 @@ var intervalThrottle = 1
     .then(function(response) {
       // console.log(JSON.stringify(response))
       if(response.status !== 'processing'){
-        window.clearInterval(statusCheckInterval)
         window.location.reload(false)
       }
       var progress = parseFloat(response.progress) * 100 || 0
