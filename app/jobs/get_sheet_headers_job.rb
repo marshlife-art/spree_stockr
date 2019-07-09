@@ -23,10 +23,12 @@ class GetSheetHeadersJob < ApplicationJob
     raise "sheet is currently processing" if sheet.processing? 
     raise "no file" if !sheet.file.attached?
 
+    sheet.processing!
     xlsx = Roo::Spreadsheet.open(sheet.file_path, extension: :xlsx)
     sheet.data["headers"] = xlsx.row(sheet.header_row)
     sheet.rows = xlsx.last_row
     write_sheet_history(sheet, {success: "processed header rows"})
+    sheet.status = :ready
     sheet.save
   end
 

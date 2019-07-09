@@ -8,6 +8,7 @@ module Spree
       def create
         @sheet = Spree::Sheet.create!(sheet_params)
         @sheet.active!
+        @sheet.update_header_row
         redirect_to admin_edit_sheet_path(@sheet.id)
       end
 
@@ -40,6 +41,16 @@ module Spree
           ParseProductsSheetJob.perform_later(@sheet.id)
         end
         flash[:success] = 'Processing file...'
+        redirect_to admin_edit_sheet_path(@sheet.id)
+      end
+
+      
+      def process_headers
+        @sheet = Spree::Sheet.find_by_id(params[:id])
+        if(!@sheet.processing?)
+          @sheet.update_header_row
+        end
+        flash[:success] = 'Processing Headers...'
         redirect_to admin_edit_sheet_path(@sheet.id)
       end
 
