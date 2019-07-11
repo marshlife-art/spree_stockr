@@ -151,10 +151,13 @@ class Spree::Sheet < ApplicationRecord
           elsif product_prop == 'taxons'
             product_attributes[:taxon_ids] ||= []
             product_attributes[:taxon_ids] += value.split(',').collect do |v|
+              v = v.strip
               if taxon_cache[v.strip].nil?
-                taxon_cache[v.strip] = Spree::Taxon.where(name: v.strip).first_or_create.id
+                taxon_id = Spree::Taxonomy.where("lower(name) = ?", v.downcase).first.try(:taxons).try(:first).try(:id)
+                taxon_id ||= Spree::Taxonomy.where(name: v.titleize).first_or_create.try(:taxons).try(:first).try(:id)
+                taxon_cache[v.strip] = taxon_id unless taxon_id.nil?
               end
-              taxon_cache[v.strip]
+              taxon_cache[v]
             end
           else
             product_attributes[product_prop.to_sym] ||= ""

@@ -56,7 +56,8 @@ class ImportProductsSheetJob < ApplicationJob
         header_cell = cells[0]
         p "header_cell: #{header_cell}"
         if taxon_cache[header_cell].nil?
-          header_cell_taxon_id = Spree::Taxon.where(name: header_cell.titleize).first_or_create.id
+          header_cell_taxon_id = Spree::Taxonomy.where("lower(name) = ?", header_cell.downcase).first.try(:taxons).try(:first).try(:id)
+          header_cell_taxon_id ||= Spree::Taxonomy.where(name: header_cell.titleize).first_or_create.try(:taxons).try(:first).try(:id)
           taxon_cache[header_cell] = header_cell_taxon_id
         else 
           header_cell_taxon_id = taxon_cache[header_cell]
